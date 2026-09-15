@@ -708,7 +708,9 @@ button.listrow { cursor: pointer; }
 .panel-fail .panel-head { background: var(--danger-bg); }
 
 .issuedone { display: flex; gap: 26px; flex-wrap: wrap; align-items: flex-start; }
-.issuedone > .grow { min-width: 300px; }
+/* flex:1 1 auto made the detail column swallow the row and push the
+   receipt onto its own line; give it a basis so the two sit side by side */
+.issuedone > .grow { flex: 1 1 340px; min-width: 300px; }
 .bigtick {
   width: 42px; height: 42px; flex: none;
   display: grid; place-items: center; border-radius: 50%;
