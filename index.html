@@ -16,6 +16,7 @@
 <link rel="stylesheet" href="assets/css/tokens.css">
 <link rel="stylesheet" href="assets/css/base.css">
 <link rel="stylesheet" href="assets/css/motion.css">
+<link rel="stylesheet" href="assets/css/shelfwalk.css">
 <link rel="stylesheet" href="assets/css/landing.css">
 </head>
 <body>
@@ -30,6 +31,7 @@
   </a>
   <nav class="nav-links" aria-label="Sections">
     <a href="#what"      data-spy>What it is</a>
+    <a href="#stacks"    data-spy>The stacks</a>
     <a href="#arch"      data-spy>Architecture</a>
     <a href="#records"   data-spy>Records</a>
     <a href="#modules"   data-spy>Modules</a>
@@ -137,9 +139,37 @@
 </section>
 
 <!-- ======================================================= -->
+<section class="section" id="stacks" style="padding-block:0;border-top:1px solid var(--line)">
+  <div class="wrap" style="padding-block:clamp(70px,10vw,120px) clamp(28px,4vw,52px)">
+    <span class="section-num" aria-hidden="true">02</span>
+    <div class="section-head" style="margin-bottom:0">
+      <div class="eyebrow" data-reveal>Walk the stacks</div>
+      <h2 class="h1" data-reveal data-delay="80">Down the aisle, and take one&nbsp;down</h2>
+      <p class="lede" data-reveal data-delay="160">
+        Scroll to walk. The corridor below is real geometry, not footage — which matters, because
+        the spines on the last two bays are catalogue records. Follow him to the end, then pull any
+        gilt-edged book off the shelf and the reservation opens inside it.
+      </p>
+    </div>
+  </div>
+
+  <div id="stackwalk"></div>
+
+  <div class="wrap" style="padding-block:clamp(34px,5vw,64px)">
+    <div class="archnote" data-reveal style="margin-top:0">
+      <p class="small muted" style="margin:0">
+        <b class="gold">Every reservation here is real.</b> Placing a hold on a book writes into the
+        same database the circulation desk uses — you will find it waiting in the staff client under
+        Holds &amp; transit, on the member’s account, and on today’s pull list.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================= -->
 <section class="section" id="arch">
   <div class="wrap">
-    <span class="section-num" aria-hidden="true">02</span>
+    <span class="section-num" aria-hidden="true">03</span>
     <div class="section-head">
       <div class="eyebrow" data-reveal>High-level architecture</div>
       <h2 class="h1" data-reveal data-delay="80">How the pieces sit together</h2>
@@ -264,7 +294,7 @@
 <!-- ======================================================= -->
 <section class="section section-alt" id="who">
   <div class="wrap">
-    <span class="section-num" aria-hidden="true">03</span>
+    <span class="section-num" aria-hidden="true">04</span>
     <div class="section-head">
       <div class="eyebrow" data-reveal>Who uses it</div>
       <h2 class="h1" data-reveal data-delay="80">Seven people, one system</h2>
@@ -281,7 +311,7 @@
 <!-- ======================================================= -->
 <section class="section" id="records">
   <div class="wrap">
-    <span class="section-num" aria-hidden="true">04</span>
+    <span class="section-num" aria-hidden="true">05</span>
     <div class="section-head">
       <div class="eyebrow" data-reveal>Core data model</div>
       <h2 class="h1" data-reveal data-delay="80">The records everything hangs&nbsp;on</h2>
@@ -298,7 +328,7 @@
 <!-- ======================================================= -->
 <section class="section section-alt" id="modules">
   <div class="wrap">
-    <span class="section-num" aria-hidden="true">05</span>
+    <span class="section-num" aria-hidden="true">06</span>
     <div class="section-head">
       <div class="eyebrow" data-reveal>Module by module</div>
       <h2 class="h1" data-reveal data-delay="80">The heart of the system</h2>
@@ -317,7 +347,7 @@
 <!-- ======================================================= -->
 <section class="section" id="life">
   <div class="wrap">
-    <span class="section-num" aria-hidden="true">06</span>
+    <span class="section-num" aria-hidden="true">07</span>
     <div class="section-head">
       <div class="eyebrow" data-reveal>End to end</div>
       <h2 class="h1" data-reveal data-delay="80">The life of one book</h2>
@@ -335,7 +365,7 @@
 <!-- ======================================================= -->
 <section class="section section-alt" id="rules">
   <div class="wrap">
-    <span class="section-num" aria-hidden="true">07</span>
+    <span class="section-num" aria-hidden="true">08</span>
     <div class="section-head">
       <div class="eyebrow" data-reveal>The rules engine</div>
       <h2 class="h1" data-reveal data-delay="80">Why two people get different due&nbsp;dates</h2>
@@ -379,7 +409,7 @@
 <!-- ======================================================= -->
 <section class="section" id="standards">
   <div class="wrap">
-    <span class="section-num" aria-hidden="true">08</span>
+    <span class="section-num" aria-hidden="true">09</span>
     <div class="section-head">
       <div class="eyebrow" data-reveal>Interoperability</div>
       <h2 class="h1" data-reveal data-delay="80">The standards that stop every library being an&nbsp;island</h2>
@@ -401,7 +431,7 @@
 <!-- ======================================================= -->
 <section class="section section-alt" id="trust">
   <div class="wrap">
-    <span class="section-num" aria-hidden="true">09</span>
+    <span class="section-num" aria-hidden="true">10</span>
     <div class="section-head">
       <div class="eyebrow" data-reveal>Security, privacy &amp; integrity</div>
       <h2 class="h1" data-reveal data-delay="80">What a library owes its members</h2>
@@ -485,6 +515,7 @@
 <script src="assets/js/motion.js"></script>
 <script src="assets/js/data.js"></script>
 <script src="assets/js/engine.js"></script>
+<script src="assets/js/shelfwalk.js"></script>
 <script src="assets/js/landing.js"></script>
 </body>
 </html>

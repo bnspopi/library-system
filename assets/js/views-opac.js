@@ -62,6 +62,7 @@
         active: opac.tab,
         items: [
           { key: 'search',  label: 'Catalogue',   icon: '⌕' },
+          { key: 'stacks',  label: 'Walk the stacks', icon: '▦' },
           { key: 'account', label: 'My account',  icon: '◍',
             badge: st ? st.loans.length + st.holds.length : null },
           { key: 'kiosk',   label: 'Self-check',  icon: '▭' },
@@ -84,6 +85,7 @@
     var pane = el('div.opac-pane', { 'data-enter': '' });
     mount.appendChild(pane);
 
+    if (opac.tab === 'stacks')  renderStacks(pane);
     if (opac.tab === 'search')  renderSearch(pane);
     if (opac.tab === 'account') renderAccount(pane);
     if (opac.tab === 'kiosk')   renderKiosk(pane);
@@ -335,6 +337,29 @@
         UI.toast({ tone: 'gold', title: 'Suggestion sent to acquisitions',
           detail: 'It appears in the selection column of the order pipeline right now.' });
       } else UI.result(res);
+    });
+  }
+
+  /* ============================================================
+     walk the stacks
+     ============================================================ */
+
+  function renderStacks(pane) {
+    pane.appendChild(el('p.lede', { 'data-enter': '', style: { marginBottom: '20px' }, text:
+      'Scroll this panel to walk down the aisle. Follow him to the end of the stacks, then pull ' +
+      'any gilt-edged spine off the shelf — the reservation opens inside the book.' }));
+
+    var host = el('div', { 'data-enter': '' });
+    pane.appendChild(host);
+
+    /* The walk scrubs against whatever scrolls it. In the staff client that is
+       the view pane, not the window. */
+    LS.ShelfWalk.mount(host, {
+      scroller: document.getElementById('view') || global,
+      embedded: true,
+      patronId: opac.me,
+      title: 'THE STACKS',
+      onReserved: function () { App.render('opac', false); }
     });
   }
 

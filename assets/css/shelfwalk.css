@@ -1,0 +1,650 @@
+/* ============================================================
+   shelfwalk.css — "Walk the stacks"
+
+   A scroll-scrubbed walk down a library aisle, built as real CSS
+   3D geometry rather than video: the spines on the featured bays
+   are catalogue records, so any of them can be pulled off the
+   shelf and reserved.
+   ============================================================ */
+
+.sw { position: relative; }
+
+/* The track is what gives the sticky stage something to scrub against. */
+.sw-track { position: relative; height: var(--sw-track, 620vh); }
+
+.sw-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  background: #060505;
+  isolation: isolate;
+  cursor: default;
+}
+.sw-embedded .sw-stage { height: min(78vh, 720px); border-radius: var(--r-xl); }
+.sw-embedded .sw-track { height: var(--sw-track, 520vh); }
+
+/* ============================================================
+   the hall
+   ============================================================ */
+
+.sw-hall {
+  position: absolute; inset: 0;
+  perspective: 1000px;
+  perspective-origin: 50% 47%;
+}
+.sw-world {
+  position: absolute; inset: 0;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.sw-panel {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  /* Panels overlap in screen space once they are in perspective, so a near
+     bay would otherwise swallow clicks meant for a spine further down the
+     aisle. All the scenery is inert; only live spines opt back in. */
+  pointer-events: none;
+}
+
+/* --- walls -------------------------------------------------- */
+.sw-wall {
+  background:
+    linear-gradient(180deg, #17120c 0%, #0d0a07 62%, #060504 100%);
+  box-shadow: inset 0 0 90px rgba(0,0,0,.85);
+}
+.sw-wall::after {                 /* timber grain */
+  content: "";
+  position: absolute; inset: 0;
+  background-image: repeating-linear-gradient(90deg,
+    rgba(255,255,255,.028) 0 1px, transparent 1px 7px);
+  opacity: .5;
+}
+
+/* --- the shelf unit that fills each wall -------------------- */
+.sw-unit {
+  position: absolute; inset: 4% 3%;
+  display: grid;
+  grid-template-rows: repeat(var(--rows, 4), 1fr);
+  gap: 2.4%;
+}
+.sw-row {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  padding: 0 6px 5px;
+  border-bottom: 3px solid #2a1f14;
+  box-shadow: 0 3px 0 rgba(0,0,0,.6), inset 0 -18px 26px -18px rgba(0,0,0,.9);
+  background: linear-gradient(180deg, rgba(0,0,0,.42), transparent 30%);
+}
+
+/* Distant bays are drawn as one painted strip rather than hundreds
+   of elements — the eye cannot tell at that scale and the browser
+   only has to composite one layer. */
+.sw-row-painted::before {
+  content: "";
+  position: absolute; left: 6px; right: 6px; bottom: 5px;
+  height: 82%;
+  background-image: var(--spines);
+  border-radius: 1px 1px 0 0;
+  filter: brightness(.82) saturate(.8);
+}
+
+/* --- an individual spine ------------------------------------ */
+.sw-spine {
+  position: relative;
+  flex: none;
+  width: var(--w, 22px);
+  height: var(--h, 84%);
+  padding: 0;
+  border: 0;
+  border-radius: 1px 1px 0 0;
+  background:
+    linear-gradient(90deg, rgba(0,0,0,.34) 0 8%, rgba(255,255,255,.20) 24%,
+                    rgba(255,255,255,.04) 52%, rgba(0,0,0,.30) 100%),
+    linear-gradient(180deg, var(--c1), var(--c2));
+  box-shadow: 1px 0 0 rgba(0,0,0,.45), inset 0 0 10px rgba(0,0,0,.28);
+  filter: brightness(1.5) saturate(1.15);
+  cursor: default;
+  overflow: hidden;
+  transform-origin: 50% 100%;
+  transition: transform 420ms var(--ease-out), box-shadow 300ms var(--ease),
+              filter 300ms var(--ease);
+}
+.sw-spine-live { cursor: pointer; }
+.sw-spine-live::after {           /* faint gilt edge so live books read as pickable */
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(242,220,172,.16);
+  opacity: 0;
+  transition: opacity 300ms var(--ease);
+}
+.sw-spine-live:hover,
+.sw-spine-live:focus-visible {
+  transform: translateY(-9px) rotateZ(-3.5deg);
+  filter: brightness(1.45);
+  box-shadow: 4px 0 16px rgba(0,0,0,.7), 0 0 26px rgba(214,183,116,.4);
+  outline: none;
+  z-index: 3;
+}
+.sw-spine-live:hover::after, .sw-spine-live:focus-visible::after { opacity: 1; }
+.sw-spine.is-pulled {
+  transform: translateY(-16px) translateZ(70px) rotateZ(-8deg);
+  filter: brightness(1.7);
+}
+
+.sw-spine-band {
+  position: absolute; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(242,220,172,.95), transparent);
+  opacity: .8;
+}
+.sw-spine-band-a { top: 14%; }
+.sw-spine-band-b { bottom: 17%; }
+
+.sw-spine-txt {
+  position: absolute; inset: 20% 0 24%;
+  display: flex; align-items: center; justify-content: center;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-family: var(--font-display);
+  font-size: 8.5px;
+  letter-spacing: .05em;
+  color: rgba(252, 248, 240, .95);
+  text-shadow: 0 1px 2px rgba(0,0,0,.8);
+  white-space: nowrap;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* --- floor, ceiling, far end -------------------------------- */
+.sw-floor {
+  background:
+    radial-gradient(60% 120% at 50% 50%, rgba(214,183,116,.10), transparent 70%),
+    repeating-linear-gradient(90deg, #120e09 0 46px, #0d0a07 46px 92px);
+  box-shadow: inset 0 0 120px rgba(0,0,0,.9);
+}
+.sw-ceiling {
+  background: linear-gradient(180deg, #0a0806, #050403);
+  box-shadow: inset 0 0 120px rgba(0,0,0,.95);
+}
+.sw-end {
+  background:
+    radial-gradient(44% 56% at 50% 44%, rgba(226,190,120,.26), transparent 62%),
+    linear-gradient(180deg, #0d0a07, #050403);
+  /* fade the panel out before its own edge, or the glow draws a hard rectangle
+     against the black of the aisle */
+  -webkit-mask-image: radial-gradient(62% 72% at 50% 46%, #000 34%, transparent 88%);
+          mask-image: radial-gradient(62% 72% at 50% 46%, #000 34%, transparent 88%);
+}
+.sw-end-window {
+  position: absolute; left: 50%; top: 42%;
+  width: 34%; height: 46%;
+  transform: translate(-50%, -50%);
+  border-radius: 140px 140px 8px 8px;
+  background: linear-gradient(180deg, rgba(255,236,196,.62), rgba(214,170,96,.16));
+  box-shadow: 0 0 120px 40px rgba(226,190,120,.22);
+  filter: blur(1px);
+}
+.sw-end-window::after {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  background-image:
+    linear-gradient(90deg, rgba(20,14,8,.7) 0 3px, transparent 3px),
+    linear-gradient(180deg, rgba(20,14,8,.7) 0 3px, transparent 3px);
+  background-size: 33.33% 25%;
+}
+
+/* --- lamps and light pools ---------------------------------- */
+.sw-lamp {
+  position: absolute; left: 50%; top: 50%;
+  width: 70px; height: 70px;
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+.sw-lamp-shade {
+  position: absolute; left: 50%; top: 0;
+  width: 66px; height: 26px;
+  transform: translateX(-50%);
+  border-radius: 50% 50% 6px 6px / 70% 70% 6px 6px;
+  background: linear-gradient(180deg, #2a2118, #120d08);
+  box-shadow: 0 10px 34px rgba(226,190,120,.34);
+}
+.sw-lamp-glow {
+  position: absolute; left: 50%; top: 16px;
+  width: 190px; height: 190px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,228,170,.32), transparent 62%);
+  filter: blur(8px);
+}
+.sw-pool {
+  position: absolute; left: 50%; top: 50%;
+  width: 420px; height: 300px;
+  transform: translate(-50%, -50%) rotateX(90deg);
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(255,222,160,.20), transparent 66%);
+  pointer-events: none;
+}
+
+/* ============================================================
+   overlays
+   ============================================================ */
+
+.sw-fog {
+  position: absolute; inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(52% 46% at 50% 47%, transparent 0%, rgba(6,5,5,.52) 62%, rgba(6,5,5,.92) 100%);
+}
+.sw-vig {
+  position: absolute; inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 220px 70px rgba(0,0,0,.92);
+  background: linear-gradient(180deg, rgba(0,0,0,.55) 0%, transparent 22%,
+              transparent 72%, rgba(0,0,0,.72) 100%);
+}
+.sw-grain {
+  position: absolute; inset: 0;
+  pointer-events: none;
+  opacity: .42;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/><feColorMatrix type='saturate' values='0'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='.36'/></svg>");
+}
+
+/* dust hanging in the lamplight */
+.sw-dust { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.sw-mote {
+  position: absolute;
+  width: 2px; height: 2px;
+  border-radius: 50%;
+  background: rgba(255, 232, 186, .75);
+  filter: blur(.4px);
+  animation: swMote var(--d, 18s) linear infinite;
+  opacity: 0;
+}
+@keyframes swMote {
+  0%   { transform: translate3d(0, 0, 0) scale(.6); opacity: 0; }
+  12%  { opacity: var(--o, .5); }
+  88%  { opacity: var(--o, .5); }
+  100% { transform: translate3d(var(--dx, 40px), -130px, 0) scale(1.25); opacity: 0; }
+}
+
+/* ============================================================
+   the walker
+   ============================================================ */
+
+.sw-walker {
+  position: absolute;
+  left: 50%; top: 0;
+  transform-origin: 50% 100%;
+  pointer-events: none;
+  will-change: transform, opacity, top;
+}
+.sw-walker svg { display: block; overflow: visible; }
+.sw-walker .sw-fig { fill: #050403; }
+.sw-walker-shadow {
+  position: absolute; left: 50%; bottom: -10px;
+  width: 130px; height: 20px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(0,0,0,.65), transparent 70%);
+}
+/* limbs swing while walking; the class is dropped when he stops */
+.sw-walking .sw-leg-a { animation: swLegA var(--gait, 1s) var(--ease) infinite; }
+.sw-walking .sw-leg-b { animation: swLegB var(--gait, 1s) var(--ease) infinite; }
+.sw-walking .sw-arm-a { animation: swArmA var(--gait, 1s) var(--ease) infinite; }
+.sw-walking .sw-arm-b { animation: swArmB var(--gait, 1s) var(--ease) infinite; }
+.sw-leg-a, .sw-leg-b, .sw-arm-a, .sw-arm-b { transform-box: fill-box; }
+.sw-leg-a, .sw-leg-b { transform-origin: 50% 4%; }
+.sw-arm-a, .sw-arm-b { transform-origin: 50% 6%; }
+@keyframes swLegA { 0%,100% { transform: rotate(19deg); } 50% { transform: rotate(-19deg); } }
+@keyframes swLegB { 0%,100% { transform: rotate(-19deg); } 50% { transform: rotate(19deg); } }
+@keyframes swArmA { 0%,100% { transform: rotate(-15deg); } 50% { transform: rotate(15deg); } }
+@keyframes swArmB { 0%,100% { transform: rotate(15deg); } 50% { transform: rotate(-15deg); } }
+
+/* he turns to the shelf at the end of the aisle */
+.sw-walker.is-turned { transform: var(--base) rotateY(58deg) !important; }
+
+/* ============================================================
+   captions & HUD  (typography follows the rest of the site)
+   ============================================================ */
+
+.sw-caption {
+  position: absolute;
+  left: var(--gutter); bottom: clamp(56px, 11vh, 110px);
+  max-width: min(560px, 62vw);
+  pointer-events: none;
+}
+.sw-caption-label {
+  font-size: 9.5px; font-weight: 500;
+  letter-spacing: var(--tracking-wide); text-transform: uppercase;
+  color: var(--gold);
+  display: block;
+  opacity: 0; transform: translateY(10px);
+  transition: opacity 620ms var(--ease-out), transform 620ms var(--ease-out);
+}
+.sw-caption-line {
+  display: block;
+  margin-top: 12px;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(21px, 2.7vw, 34px);
+  line-height: 1.26;
+  color: var(--cream);
+  text-shadow: 0 2px 26px rgba(0,0,0,.9);
+  opacity: 0; transform: translateY(16px);
+  transition: opacity 720ms var(--ease-out) 90ms, transform 720ms var(--ease-out) 90ms;
+}
+.sw-caption.is-in .sw-caption-label,
+.sw-caption.is-in .sw-caption-line { opacity: 1; transform: none; }
+
+.sw-hud {
+  position: absolute;
+  left: var(--gutter); right: var(--gutter); top: calc(var(--header-h) + clamp(14px, 2.5vh, 30px));
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 18px; flex-wrap: wrap;
+  pointer-events: none;
+}
+.sw-hud-title {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 5.6vw, 76px);
+  line-height: 1;
+  letter-spacing: .14em;
+  color: rgba(246, 241, 231, .90);
+  text-shadow: 0 4px 44px rgba(0,0,0,.95);
+  margin: 0;
+}
+.sw-hud-meta {
+  text-align: right;
+  font-size: 10px; letter-spacing: var(--tracking-mid);
+  text-transform: uppercase; color: var(--faint);
+}
+.sw-hud-meta b { display: block; color: var(--gold); font-size: 11px; margin-bottom: 4px; }
+
+/* the depth gauge down the right edge */
+.sw-gauge {
+  position: absolute; right: calc(var(--gutter) * .5); top: 50%;
+  transform: translateY(-50%);
+  width: 2px; height: min(240px, 28vh);
+  border-radius: 2px;
+  background: rgba(246,241,231,.10);
+  pointer-events: none;
+  overflow: hidden;
+}
+.sw-gauge > span {
+  display: block; width: 100%; height: 100%;
+  transform-origin: 50% 0;
+  transform: scaleY(0);
+  background: linear-gradient(180deg, var(--gold-bright), var(--gold-deep));
+}
+.sw-gauge-bay {
+  position: absolute; left: -4px; width: 10px; height: 1px;
+  background: rgba(246,241,231,.22);
+}
+
+/* scroll cue, only while the walk has not finished */
+.sw-cue {
+  position: absolute; left: 50%; bottom: 22px;
+  transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  font-size: 9px; letter-spacing: var(--tracking-wide); text-transform: uppercase;
+  color: var(--faint);
+  pointer-events: none;
+  transition: opacity 500ms var(--ease);
+}
+.sw-cue i {
+  width: 1px; height: 34px;
+  background: linear-gradient(180deg, var(--gold), transparent);
+  animation: cueDrop 2.3s var(--ease) infinite;
+  transform-origin: top;
+}
+.sw-cue.is-out { opacity: 0; }
+
+/* the invitation that appears once he stops at the shelf */
+.sw-prompt {
+  position: absolute; left: 50%; bottom: clamp(26px, 6vh, 56px);
+  transform: translate(-50%, 24px);
+  display: flex; align-items: center; gap: 14px;
+  padding: 11px 13px 11px 20px;
+  border: 1px solid var(--gold-line);
+  border-radius: var(--r-pill);
+  background: rgba(14, 11, 9, .84);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 560ms var(--ease-out), transform 560ms var(--ease-out);
+}
+.sw-prompt.is-in { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+.sw-prompt-text { font-size: 13px; color: var(--cream); }
+.sw-prompt-text b { color: var(--gold); font-weight: 500; }
+.sw-prompt-hint {
+  display: block; font-size: 10.5px; color: var(--faint); margin-top: 2px;
+}
+
+/* ============================================================
+   pulling a book: the opening
+   ============================================================ */
+
+.sw-open {
+  position: fixed; inset: 0; z-index: 240;
+  display: grid; place-items: center;
+  padding: clamp(16px, 4vw, 48px);
+  background: rgba(5, 4, 4, .82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  opacity: 0;
+  transition: opacity 420ms var(--ease);
+}
+.sw-open.is-in { opacity: 1; }
+
+.sw-book {
+  position: relative;
+  width: min(940px, 100%);
+  max-height: 100%;
+  perspective: 1800px;
+}
+.sw-book-inner {
+  position: relative;
+  transform-style: preserve-3d;
+  transform: rotateX(4deg) translateY(16px) scale(.94);
+  opacity: 0;
+  transition: transform 760ms var(--ease-out), opacity 460ms var(--ease);
+}
+.sw-open.is-in .sw-book-inner { transform: none; opacity: 1; }
+
+.sw-spread {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  border-radius: 4px 12px 12px 4px;
+  overflow: hidden;
+  background: linear-gradient(90deg, #14100c, #1b1610 6%, #191410 50%, #1c1712 94%, #100d09);
+  box-shadow:
+    0 60px 120px -40px rgba(0,0,0,.95),
+    inset 0 0 0 1px rgba(246,241,231,.07);
+  max-height: min(78vh, 700px);
+}
+.sw-page {
+  position: relative;
+  padding: clamp(22px, 3vw, 40px);
+  overflow-y: auto;
+}
+.sw-page-l {
+  background:
+    linear-gradient(270deg, rgba(0,0,0,.5), transparent 16%),
+    linear-gradient(160deg, #1d1813, #141009);
+  border-right: 1px solid rgba(0,0,0,.6);
+}
+.sw-page-r {
+  background:
+    linear-gradient(90deg, rgba(0,0,0,.5), transparent 16%),
+    linear-gradient(200deg, #1d1813, #141009);
+}
+/* the ruled paper feel */
+.sw-page::before {
+  content: "";
+  position: absolute; inset: 0;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(180deg,
+    transparent 0 27px, rgba(246,241,231,.026) 27px 28px);
+}
+
+/* the front cover, hinged on the spine, swinging open */
+.sw-cover {
+  position: absolute; inset: 0 auto 0 0;
+  width: 46.2%;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transform: rotateY(0deg);
+  transition: transform 1150ms cubic-bezier(.62, .02, .2, 1);
+  z-index: 2;
+  border-radius: 4px 9px 9px 4px;
+  overflow: hidden;
+  box-shadow: 8px 0 34px rgba(0,0,0,.7);
+}
+.sw-open.is-open .sw-cover {
+  transform: rotateY(-124deg);
+  opacity: 0;
+  transition: transform 1150ms cubic-bezier(.62, .02, .2, 1),
+              opacity 420ms linear 780ms;
+}
+.sw-cover-face {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding: clamp(22px, 3vw, 38px);
+  backface-visibility: hidden;
+  background:
+    linear-gradient(112deg, rgba(255,255,255,.07), transparent 46%),
+    linear-gradient(170deg, var(--c1, #3a2a16), var(--c2, #18110a));
+}
+.sw-cover-face::after {                 /* gilt rule inset on the board */
+  content: "";
+  position: absolute; inset: 14px;
+  border: 1px solid rgba(242,220,172,.26);
+  border-radius: 3px;
+  pointer-events: none;
+}
+.sw-cover-back {
+  position: absolute; inset: 0;
+  transform: rotateY(180deg);
+  backface-visibility: hidden;
+  background: linear-gradient(200deg, #1a150f, #0f0c08);
+  display: grid; place-items: center;
+  padding: 26px;
+}
+.sw-cover-back-plate {
+  border: 1px solid rgba(246,241,231,.12);
+  border-radius: 3px;
+  padding: 18px 20px;
+  text-align: center;
+  max-width: 260px;
+}
+.sw-cover-title {
+  font-family: var(--font-display);
+  font-size: clamp(20px, 2.4vw, 30px);
+  line-height: 1.16;
+  color: var(--gold-bright);
+}
+.sw-cover-author {
+  margin-top: 10px;
+  font-size: 11px; letter-spacing: var(--tracking-mid); text-transform: uppercase;
+  color: rgba(246,241,231,.62);
+}
+.sw-cover-foot {
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: .08em; color: rgba(242,220,172,.5);
+}
+
+.sw-open-x {
+  position: absolute; top: -46px; right: 0;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 7px 14px;
+  border: 1px solid var(--line-strong); border-radius: var(--r-pill);
+  background: rgba(14,11,9,.7);
+  color: var(--muted);
+  font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase;
+  cursor: pointer;
+  transition: all var(--t-fast) var(--ease);
+}
+.sw-open-x:hover { color: var(--gold); border-color: var(--gold-line); }
+
+/* --- booking panel ------------------------------------------ */
+.sw-avail { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.sw-availrow {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; padding: 9px 12px;
+  border: 1px solid var(--line); border-radius: var(--r-sm);
+  background: rgba(0,0,0,.24);
+}
+.sw-availrow > div { min-width: 0; }
+.sw-availrow b {
+  display: block; font-size: 12.5px; color: var(--cream); font-weight: 500;
+}
+.sw-availrow span {
+  display: block; font-size: 10.5px; color: var(--faint); margin-top: 3px;
+}
+
+.sw-book-fields { display: grid; gap: 13px; margin-top: 18px; }
+
+.sw-reserve {
+  width: 100%;
+  margin-top: 18px;
+}
+
+/* the stamped confirmation */
+.sw-stamp {
+  margin-top: 18px;
+  padding: 18px 20px;
+  border: 1px dashed var(--gold-line);
+  border-radius: var(--r-md);
+  background: var(--gold-ghost);
+  position: relative;
+  animation: popIn 520ms var(--ease-spring) both;
+}
+.sw-stamp-mark {
+  position: absolute; top: -14px; right: 14px;
+  padding: 5px 12px;
+  border: 2px solid var(--gold);
+  border-radius: 4px;
+  font-size: 9.5px; font-weight: 700;
+  letter-spacing: .18em; text-transform: uppercase;
+  color: var(--gold);
+  background: #17130d;
+  transform: rotate(-7deg);
+  animation: swStamp 520ms var(--ease-spring) 220ms both;
+}
+@keyframes swStamp {
+  0%   { transform: rotate(-7deg) scale(2.4); opacity: 0; }
+  60%  { transform: rotate(-7deg) scale(.92); opacity: 1; }
+  100% { transform: rotate(-7deg) scale(1); opacity: 1; }
+}
+
+/* ============================================================
+   reduced motion & small screens
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .sw-track { height: auto !important; }
+  .sw-stage { position: relative; height: min(70vh, 620px); }
+  .sw-mote, .sw-cue i { animation: none; }
+  .sw-walking .sw-leg-a, .sw-walking .sw-leg-b,
+  .sw-walking .sw-arm-a, .sw-walking .sw-arm-b { animation: none; }
+  .sw-cover { transition: none; }
+  .sw-book-inner { transition: none; }
+}
+
+@media (max-width: 900px) {
+  .sw-spread { grid-template-columns: 1fr; max-height: min(72vh, 640px); }
+  .sw-cover { display: none; }          /* no room to swing a board open */
+  .sw-page-l { border-right: 0; border-bottom: 1px solid rgba(0,0,0,.6); }
+  .sw-gauge { display: none; }
+  .sw-caption { max-width: 78vw; }
+}

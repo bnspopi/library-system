@@ -538,6 +538,12 @@
     buildStandards();
     buildSecurity();
     buildPlayground();
+
+    var stacks = document.getElementById('stackwalk');
+    if (stacks && LS.ShelfWalk) {
+      LS.ShelfWalk.mount(stacks, { scroller: global, title: 'THE STACKS' });
+    }
+
     Motion.boot();
   });
 })(window);

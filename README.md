@@ -8,7 +8,7 @@ Two pages, no build step, no backend:
 
 | Page | What it is |
 |------|------------|
-| `index.html` | An animated explainer — architecture, data model, module-by-module walkthrough, the life of one book, a live rules playground and the interoperability standards. |
+| `index.html` | An animated explainer — **a scroll-scrubbed walk down the stacks**, the architecture, the data model, a module-by-module walkthrough, the life of one book, a live rules playground and the interoperability standards. |
 | `app.html` | The system itself. A staff client with thirteen modules and a public catalogue, both reading and writing one shared in-browser database. |
 
 Everything is real logic. Issue a reference copy and it is refused. Return a book somebody is
@@ -17,6 +17,23 @@ and the next checkout uses it. Push the demo clock forward a week and the nightl
 fines, sends notices and expires stale holds for each day skipped.
 
 ---
+
+## Walk the stacks
+
+The centrepiece of the landing page (and the **Walk the stacks** tab of the public catalogue) is a
+scroll-scrubbed walk down a library aisle. Scrolling dollies the camera through seven bays while a
+figure walks ahead of you, the lamps throw pools onto the floor, dust hangs in the light, and
+staged captions fade in and out.
+
+It is real CSS 3D geometry, not video — which is the point. The spines on the last two bays are
+**catalogue records**. Reach the end of the aisle and any gilt-edged spine becomes clickable: it
+tips off the shelf, the book opens, and the right-hand page is the reservation — availability by
+branch, who is borrowing, where to collect. Reserving writes a genuine hold into the same database
+the circulation desk uses, and it appears immediately on the pull list and the member's account.
+
+No footage, no asset downloads, no 3D library: it is `assets/css/shelfwalk.css` plus
+`assets/js/shelfwalk.js`, which mounts against either the window (landing page) or the app's own
+scroll pane (staff client).
 
 ## Run it locally
 
@@ -104,11 +121,13 @@ assets/
     tokens.css        colour, type, spacing and motion tokens
     base.css          reset, typography, buttons, forms, tables
     motion.css        the CSS half of the animation layer
+    shelfwalk.css     the 3D stacks corridor and the book-opening reservation
     landing.css       explainer page
     app.css           staff client and OPAC
   js/
     core.js           namespace, dates, money, event bus, demo clock
     motion.js         scroll reveals, counters, marquees, tilt, magnetic, parallax
+    shelfwalk.js      the scroll-scrubbed walk down the aisle + reserve-a-book flow
     data.js           the seed dataset — bibs, items, patrons, funds, serials, policies
     engine.js         the business rules: circulation, holds, fines, acquisitions, the nightly job
     ui.js             toasts, modals, drawers, tabs, charts, receipts
@@ -167,6 +186,8 @@ every panel updated, which is what the live activity rail on the right of the st
 
 **Public side** — the *Public* toggle in the header
 
+- **Walk the stacks** — scroll to the end of the aisle, pull a gilt-edged spine off the shelf and
+  reserve it, then find that hold waiting on the staff side under Holds & transit.
 - Search, facet, place a hold, then look at the same hold from the staff side.
 - Sign in with any demo library card. Two of them are blocked.
 - Renew a loan; it is refused for exactly the reasons the desk would refuse it.
