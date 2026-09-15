@@ -1,0 +1,81 @@
+/* ============================================================
+   Aurelia ILS — design tokens
+   A single source of truth for colour, type, space and motion.
+   ============================================================ */
+
+:root {
+  /* --- ground --------------------------------------------- */
+  --ink:          #090807;
+  --ink-2:        #0F0D0B;
+  --surface:      #151210;
+  --surface-2:    #1C1815;
+  --surface-3:    #241F1A;
+  --surface-hi:   #2E2720;
+
+  /* --- gold ----------------------------------------------- */
+  --gold:         #D6B774;
+  --gold-bright:  #F2DCAC;
+  --gold-deep:    #A5823E;
+  --gold-ghost:   rgba(214, 183, 116, 0.10);
+  --gold-line:    rgba(214, 183, 116, 0.22);
+
+  /* --- text ----------------------------------------------- */
+  --cream:        #F6F1E7;
+  --text:         #E8E1D4;
+  --muted:        #A49B8B;
+  --faint:        #6F675B;
+
+  /* --- semantic ------------------------------------------- */
+  --ok:           #86BE93;
+  --ok-bg:        rgba(134, 190, 147, 0.12);
+  --warn:         #E2A85C;
+  --warn-bg:      rgba(226, 168, 92, 0.13);
+  --danger:       #DE7B6E;
+  --danger-bg:    rgba(222, 123, 110, 0.13);
+  --info:         #86ACCC;
+  --info-bg:      rgba(134, 172, 204, 0.13);
+
+  /* --- lines & shadow ------------------------------------- */
+  --line:         rgba(246, 241, 231, 0.09);
+  --line-strong:  rgba(246, 241, 231, 0.16);
+  --shadow-sm:    0 1px 2px rgba(0,0,0,.4);
+  --shadow:       0 18px 48px -18px rgba(0,0,0,.85);
+  --shadow-lg:    0 42px 90px -30px rgba(0,0,0,.9);
+  --glow:         0 0 0 1px var(--gold-line), 0 22px 60px -28px rgba(214,183,116,.5);
+
+  /* --- type ----------------------------------------------- */
+  --font-display: "Cormorant Garamond", "Iowan Old Style", "Palatino Linotype",
+                  Palatino, Georgia, "Times New Roman", serif;
+  --font-ui:      "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+                  Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono:    "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo,
+                  Consolas, "Liberation Mono", monospace;
+
+  --tracking-wide: .28em;
+  --tracking-mid:  .14em;
+
+  /* --- rhythm --------------------------------------------- */
+  --r-xs: 4px;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 18px;
+  --r-xl: 28px;
+  --r-pill: 999px;
+
+  --gutter: clamp(20px, 5vw, 76px);
+  --maxw: 1320px;
+
+  /* --- motion --------------------------------------------- */
+  --ease:       cubic-bezier(.22, .61, .36, 1);
+  --ease-out:   cubic-bezier(.16, 1, .3, 1);
+  --ease-spring:cubic-bezier(.34, 1.56, .64, 1);
+  --t-fast: 140ms;
+  --t-mid:  320ms;
+  --t-slow: 720ms;
+
+  --header-h: 72px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --t-fast: 1ms; --t-mid: 1ms; --t-slow: 1ms; }
+}

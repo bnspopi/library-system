@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aurelia — an integrated library system, explained and running</title>
+<meta name="description" content="What an ILS actually is: shared records, policy-driven circulation, modular staff work and a public search layer over the same truth. Includes a working, clickable demo.">
+<meta name="theme-color" content="#090807">
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23090807'/><g fill='%23D6B774'><rect x='8' y='9' width='3.5' height='14' rx='1.5'/><rect x='14.2' y='6' width='3.5' height='17' rx='1.5'/><rect x='20.4' y='11' width='3.5' height='12' rx='1.5'/></g></svg>">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+
+<link rel="stylesheet" href="assets/css/tokens.css">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/motion.css">
+<link rel="stylesheet" href="assets/css/landing.css">
+</head>
+<body>
+
+<div class="progress-rail" data-progress-bar aria-hidden="true"><span></span></div>
+
+<!-- ======================================================= -->
+<header class="nav" data-sticky-header>
+  <a class="nav-brand" href="#top" aria-label="Aurelia — top of page">
+    <span class="nav-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+    <b>AURELIA</b>
+  </a>
+  <nav class="nav-links" aria-label="Sections">
+    <a href="#what"      data-spy>What it is</a>
+    <a href="#arch"      data-spy>Architecture</a>
+    <a href="#records"   data-spy>Records</a>
+    <a href="#modules"   data-spy>Modules</a>
+    <a href="#life"      data-spy>Life of a book</a>
+    <a href="#rules"     data-spy>Rules engine</a>
+    <a href="#standards" data-spy>Standards</a>
+  </nav>
+  <a class="btn btn-primary btn-sm nav-cta" href="app.html" data-magnetic data-ripple>Enter the demo</a>
+</header>
+
+<!-- ======================================================= -->
+<main id="top">
+
+<section class="hero grain">
+  <div class="hero-bg" aria-hidden="true">
+    <div class="hero-rule"></div>
+    <div class="hero-orb hero-orb-1 float" data-parallax="0.06"></div>
+    <div class="hero-orb hero-orb-2 breathe"></div>
+  </div>
+
+  <div class="wrap hero-inner">
+    <div class="eyebrow" data-reveal>Integrated Library System · Library Services Platform</div>
+
+    <h1 class="display hero-title" data-split data-split-delay="150">
+      One database.<br>Every <em>desk</em>.
+    </h1>
+
+    <p class="lede hero-sub" data-reveal data-delay="520">
+      An ILS is ERP for a library: the things it owns, the people who borrow them, the money spent
+      acquiring them, and the rules that decide who may take what and for how long. Check a book in
+      and the catalogue, the hold queue, the fine engine and the statistics all move at once —
+      because they are not separate applications. Right now it is handling
+      <span class="hero-typer" data-typer data-words="a checkout at the desk|a hold placed at midnight|an overdue fine accruing|a purchase order encumbering a fund|an issue of Nature being checked in|a copy in transit between branches"></span>
+    </p>
+
+    <div class="row wrapflex hero-actions" data-reveal data-delay="660">
+      <a class="btn btn-primary btn-lg" href="app.html" data-ripple data-magnetic data-magnet-strength="0.18">
+        Enter the working demo
+      </a>
+      <a class="btn btn-lg" href="#arch" data-ripple>See the architecture</a>
+    </div>
+
+    <div class="hero-facts" data-reveal-group data-stagger="90">
+      <div class="fact"><b data-count="10">0</b><span>Core modules</span></div>
+      <div class="fact"><b data-count="22">0</b><span>Titles in the demo</span></div>
+      <div class="fact"><b data-count="76">0</b><span>Item records</span></div>
+      <div class="fact"><b data-count="20">0</b><span>Policy rows</span></div>
+      <div class="fact"><b data-count="8">0</b><span>Interop standards</span></div>
+    </div>
+  </div>
+
+  <div class="scrollcue" aria-hidden="true"><span>Scroll</span><i></i></div>
+</section>
+
+<!-- ======================================================= -->
+<section class="section section-alt" id="what">
+  <div class="wrap">
+    <span class="section-num" aria-hidden="true">01</span>
+    <div class="section-head">
+      <div class="eyebrow" data-reveal>What the system actually is</div>
+      <h2 class="h1" data-reveal data-delay="80">Two faces of the same&nbsp;database</h2>
+      <p class="lede" data-reveal data-delay="160">
+        Staff and the public are looking at one set of records through two very different windows.
+        The availability a reader sees in the catalogue is the same <code class="mono gold">item.status</code>
+        the circulation desk wrote a second ago. There is no export, no overnight sync, no second entry.
+      </p>
+    </div>
+
+    <div class="faces" data-reveal-group data-stagger="120">
+      <article class="face" data-spotlight data-tilt data-tilt-max="4">
+        <div class="face-ic">⌗</div>
+        <h3 class="h3">Staff side</h3>
+        <p class="muted small">Catalogers, the circulation desk, acquisitions, serials and
+           administration — each with their own module, all writing to one shared file.</p>
+        <ul>
+          <li>Issue, return and renew against a live policy matrix</li>
+          <li>Create bibliographic records and attach copies</li>
+          <li>Order, encumber, receive, invoice and accession</li>
+          <li>Predict, check in, claim and bind serial issues</li>
+          <li>Configure the rules that drive every due date</li>
+        </ul>
+        <div class="face-foot">
+          <a class="btn btn-sm" href="app.html#/circulation" data-ripple>Open the staff client →</a>
+        </div>
+      </article>
+
+      <article class="face" data-spotlight data-tilt data-tilt-max="4">
+        <div class="face-ic">⌕</div>
+        <h3 class="h3">Public side</h3>
+        <p class="muted small">The OPAC or discovery layer, the mobile account, and the self-check
+           kiosk — all speaking to exactly the same circulation engine.</p>
+        <ul>
+          <li>Search every branch, format and licensed e-resource at once</li>
+          <li>Real-time availability, because it is the same record</li>
+          <li>Place a hold, watch your position in the queue</li>
+          <li>Renew online — refused for the same reasons the desk would refuse</li>
+          <li>See and settle charges without speaking to anyone</li>
+        </ul>
+        <div class="face-foot">
+          <a class="btn btn-sm" href="app.html#/opac" data-ripple>Open the public catalogue →</a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================= -->
+<section class="section" id="arch">
+  <div class="wrap">
+    <span class="section-num" aria-hidden="true">02</span>
+    <div class="section-head">
+      <div class="eyebrow" data-reveal>High-level architecture</div>
+      <h2 class="h1" data-reveal data-delay="80">How the pieces sit together</h2>
+      <p class="lede" data-reveal data-delay="160">
+        Three classic components — a database, software that talks to it, and two interfaces.
+        What makes it <em class="ital gold">integrated</em> is the single layer of business rules
+        sitting between them, so nothing can reach the data and bypass policy.
+      </p>
+    </div>
+
+    <div class="arch">
+      <div class="archlayer" data-reveal>
+        <div class="archlayer-top">
+          <span class="archlayer-name">Presentation</span>
+          <span class="archlayer-tag">Patrons &amp; staff</span>
+        </div>
+        <p>Public OPAC and discovery, the staff client, the mobile account portal, the self-check
+           kiosk and the RFID pad. Different skins, identical truth underneath.</p>
+        <div class="archchips">
+          <span class="archchip">OPAC / discovery</span>
+          <span class="archchip">Staff web client</span>
+          <span class="archchip">Mobile account</span>
+          <span class="archchip">Self-check kiosk</span>
+          <span class="archchip">RFID pad &amp; gates</span>
+        </div>
+      </div>
+
+      <div class="archflow" aria-hidden="true"></div>
+
+      <div class="archlayer" data-reveal>
+        <div class="archlayer-top">
+          <span class="archlayer-name">Application / API</span>
+          <span class="archlayer-tag">HTTPS · SIP2 · NCIP</span>
+        </div>
+        <p>Controllers receive “check this barcode out to this patron” and return a success or a
+           blocking reason. The kiosk and the desk hit the same endpoints.</p>
+        <div class="archchips">
+          <span class="archchip">Circulation</span>
+          <span class="archchip">Catalog</span>
+          <span class="archchip">Acquisitions</span>
+          <span class="archchip">Serials</span>
+          <span class="archchip">Users</span>
+          <span class="archchip">Fines</span>
+          <span class="archchip">ERM</span>
+        </div>
+      </div>
+
+      <div class="archflow" aria-hidden="true"></div>
+
+      <div class="archlayer" data-reveal>
+        <div class="archlayer-top">
+          <span class="archlayer-name">Business rules &amp; policy</span>
+          <span class="archlayer-tag">The brain</span>
+        </div>
+        <p>Eligibility, due-date calculation, hold capture, renewal caps, the fine formula, budget
+           encumbrance. This layer is transactional: a checkout either fully succeeds or rolls back,
+           so a crashed scanner can never leave a copy both “out” and “in”.</p>
+        <div class="archchips">
+          <span class="archchip">Loan periods</span>
+          <span class="archchip">Limits &amp; blocks</span>
+          <span class="archchip">Fines &amp; grace</span>
+          <span class="archchip">Hold queue</span>
+          <span class="archchip">Authority control</span>
+          <span class="archchip">Encumbrance</span>
+        </div>
+      </div>
+
+      <div class="archflow" aria-hidden="true"></div>
+
+      <div class="archlayer" data-reveal>
+        <div class="archlayer-top">
+          <span class="archlayer-name">Shared relational database</span>
+          <span class="archlayer-tag">One source of truth</span>
+        </div>
+        <p>Bibs, items, patrons and transactions in one schema, indexed on ISBN, barcode, title
+           keywords and call number — with audit and history tables so any record can be
+           reconstructed.</p>
+        <div class="archchips">
+          <span class="archchip">bibs</span>
+          <span class="archchip">items</span>
+          <span class="archchip">patrons</span>
+          <span class="archchip">transactions</span>
+          <span class="archchip">holds</span>
+          <span class="archchip">fines</span>
+          <span class="archchip">funds</span>
+          <span class="archchip">audit</span>
+        </div>
+      </div>
+
+      <div class="archflow" aria-hidden="true"></div>
+
+      <div class="archlayer" data-reveal>
+        <div class="archlayer-top">
+          <span class="archlayer-name">Integrations</span>
+          <span class="archlayer-tag">Outbound</span>
+        </div>
+        <p>Payment gateway, email and SMS, RFID and security gates, union catalogues, the
+           e-resource knowledge base, and an off-site replica — because losing the circulation
+           database on a Monday morning is a disaster.</p>
+        <div class="archchips">
+          <span class="archchip">Payments</span>
+          <span class="archchip">Email / SMS</span>
+          <span class="archchip">RFID</span>
+          <span class="archchip">Union catalogue</span>
+          <span class="archchip">Knowledge base</span>
+          <span class="archchip">Replica</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="archnote" data-reveal>
+      <p class="small muted" style="margin:0">
+        <b class="gold">Deployment shapes differ, the layers do not.</b> A classic ILS such as Koha,
+        Symphony or Polaris runs this as a monolith against one database, often on-premises. A modern
+        Library Services Platform — Alma, FOLIO, WorldShare — runs the same layers as cloud services
+        behind an API gateway, and treats print and electronic resources in one workflow.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================= -->
+<section class="section section-alt" id="who">
+  <div class="wrap">
+    <span class="section-num" aria-hidden="true">03</span>
+    <div class="section-head">
+      <div class="eyebrow" data-reveal>Who uses it</div>
+      <h2 class="h1" data-reveal data-delay="80">Seven people, one system</h2>
+      <p class="lede" data-reveal data-delay="160">
+        Each role touches a different module, but every one of them is reading and writing the same
+        records. That is the whole point — and the reason permissions are role-based rather than
+        all-or-nothing.
+      </p>
+    </div>
+    <div class="rolegrid" data-reveal-group data-stagger="70" id="roles"></div>
+  </div>
+</section>
+
+<!-- ======================================================= -->
+<section class="section" id="records">
+  <div class="wrap">
+    <span class="section-num" aria-hidden="true">04</span>
+    <div class="section-head">
+      <div class="eyebrow" data-reveal>Core data model</div>
+      <h2 class="h1" data-reveal data-delay="80">The records everything hangs&nbsp;on</h2>
+      <p class="lede" data-reveal data-delay="160">
+        Everything is IDs linked together. Get these eight records right and the rest of the system
+        is plumbing. Get them wrong — most commonly by confusing the <em class="ital">work</em> with
+        the <em class="ital">copy</em> — and nothing downstream can be fixed.
+      </p>
+    </div>
+    <div class="recgrid" data-reveal-group data-stagger="60" id="records-grid"></div>
+  </div>
+</section>
+
+<!-- ======================================================= -->
+<section class="section section-alt" id="modules">
+  <div class="wrap">
+    <span class="section-num" aria-hidden="true">05</span>
+    <div class="section-head">
+      <div class="eyebrow" data-reveal>Module by module</div>
+      <h2 class="h1" data-reveal data-delay="80">The heart of the system</h2>
+      <p class="lede" data-reveal data-delay="160">
+        Ten modules, each a stage of the same pipeline: acquire, describe, circulate, report.
+        Pick one.
+      </p>
+    </div>
+    <div class="modwrap" data-reveal>
+      <div class="modlist" id="modlist" role="tablist" aria-label="Modules"></div>
+      <div class="modpanel" id="modpanel" role="tabpanel"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================= -->
+<section class="section" id="life">
+  <div class="wrap">
+    <span class="section-num" aria-hidden="true">06</span>
+    <div class="section-head">
+      <div class="eyebrow" data-reveal>End to end</div>
+      <h2 class="h1" data-reveal data-delay="80">The life of one book</h2>
+      <p class="lede" data-reveal data-delay="160">
+        Eleven steps, six modules, one record — from a selector’s request to a weeding decision
+        years later. Follow the line down.
+      </p>
+    </div>
+    <div class="life" id="life">
+      <div class="life-fill" id="life-fill" aria-hidden="true"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================= -->
+<section class="section section-alt" id="rules">
+  <div class="wrap">
+    <span class="section-num" aria-hidden="true">07</span>
+    <div class="section-head">
+      <div class="eyebrow" data-reveal>The rules engine</div>
+      <h2 class="h1" data-reveal data-delay="80">Why two people get different due&nbsp;dates</h2>
+      <p class="lede" data-reveal data-delay="160">
+        Checkout is never “14 days for everyone”. The engine resolves member category × item type ×
+        location, then adjusts for the calendar, existing blocks and the hold queue. Change the
+        controls below — this is the live engine from the demo, not a mock-up.
+      </p>
+    </div>
+
+    <div class="playground" data-reveal>
+      <div class="playcontrols">
+        <label class="field">
+          <span class="label">Member category</span>
+          <select class="select" id="pg-patron"></select>
+        </label>
+        <label class="field">
+          <span class="label">Item type</span>
+          <select class="select" id="pg-item"></select>
+        </label>
+        <label class="field">
+          <span class="label">Branch</span>
+          <select class="select" id="pg-branch"></select>
+        </label>
+        <div class="hairline"></div>
+        <label class="check">
+          <input type="checkbox" id="pg-closed">
+          <span>Count closed days toward the due date</span>
+        </label>
+        <p class="tiny faint" style="margin:0">
+          Closed days are read from the library calendar. When they are skipped, a due date that
+          would land on a closing day rolls forward to the next open one.
+        </p>
+      </div>
+
+      <div class="playout" id="pg-out"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================= -->
+<section class="section" id="standards">
+  <div class="wrap">
+    <span class="section-num" aria-hidden="true">08</span>
+    <div class="section-head">
+      <div class="eyebrow" data-reveal>Interoperability</div>
+      <h2 class="h1" data-reveal data-delay="80">The standards that stop every library being an&nbsp;island</h2>
+      <p class="lede" data-reveal data-delay="160">
+        Without these, every vendor and every library would be a silo — no copy cataloguing, no
+        interlibrary loan, no self-check machine that works with more than one system.
+      </p>
+    </div>
+  </div>
+
+  <div class="stdmarquee" data-marquee data-speed="46" aria-hidden="true">
+    <ul id="std-a"></ul>
+  </div>
+  <div class="stdmarquee" data-marquee data-speed="52" data-dir="reverse" aria-hidden="true">
+    <ul id="std-b"></ul>
+  </div>
+</section>
+
+<!-- ======================================================= -->
+<section class="section section-alt" id="trust">
+  <div class="wrap">
+    <span class="section-num" aria-hidden="true">09</span>
+    <div class="section-head">
+      <div class="eyebrow" data-reveal>Security, privacy &amp; integrity</div>
+      <h2 class="h1" data-reveal data-delay="80">What a library owes its members</h2>
+      <p class="lede" data-reveal data-delay="160">
+        A circulation database is a record of what people read. That makes integrity and restraint
+        design requirements, not afterthoughts.
+      </p>
+    </div>
+
+    <div class="secgrid" data-reveal-group data-stagger="70" id="sec-grid"></div>
+
+    <div style="margin-top:44px" data-reveal>
+      <h3 class="h3" style="margin-bottom:22px">Deployment shapes you will actually see</h3>
+      <div class="shapes">
+        <div class="shaperow shaperow-head">
+          <span>Shape</span><span>Who uses it</span><span>How it is built</span>
+        </div>
+        <div class="shaperow">
+          <b>Classic ILS</b>
+          <span>Public, school, small college</span>
+          <span>Monolithic application over one database, often on-premises — Koha, Symphony, Polaris.</span>
+        </div>
+        <div class="shaperow">
+          <b>Library Services Platform</b>
+          <span>Large academic and research</span>
+          <span>Multi-tenant cloud handling print and electronic resources in one workflow — Alma, WorldShare, FOLIO.</span>
+        </div>
+        <div class="shaperow">
+          <b>Consortial</b>
+          <span>Many libraries, one catalogue</span>
+          <span>A shared bibliographic file with local item and patron files, and items in transit between members.</span>
+        </div>
+        <div class="shaperow">
+          <b>Digital-only / special</b>
+          <span>Corporate, law, museum</span>
+          <span>Strong electronic resource management and knowledge base; little or no print circulation.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================= -->
+<section class="cta grain">
+  <div class="cta-orb breathe" aria-hidden="true"></div>
+  <div class="wrap cta-inner">
+    <div class="eyebrow no-rule center" style="justify-content:center" data-reveal>Ready when you are</div>
+    <h2 class="h1" style="margin-top:18px" data-reveal data-delay="80">
+      Go and break&nbsp;it
+    </h2>
+    <p class="lede center" data-reveal data-delay="160">
+      Every button in the demo is wired to the engine described on this page. Issue a reference copy
+      and watch it refused. Return a book somebody is waiting for and watch the hold trap. Edit a
+      policy row and re-issue the same title. Push the clock forward a week and watch the fines
+      accrue overnight.
+    </p>
+    <div class="row wrapflex cta-actions" data-reveal data-delay="240">
+      <a class="btn btn-primary btn-lg" href="app.html" data-ripple data-magnetic data-magnet-strength="0.2">
+        Enter the demo
+      </a>
+      <a class="btn btn-lg" href="app.html#/opac" data-ripple>Start on the public side</a>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap foot-inner">
+    <span>Aurelia ILS — a demonstration build. Records, members and money are fictional.</span>
+    <span class="row" style="--gap:18px">
+      <a href="app.html">Demo</a>
+      <a href="#arch">Architecture</a>
+      <a href="#modules">Modules</a>
+      <a href="#top">Top</a>
+    </span>
+  </div>
+</footer>
+
+</main>
+
+<script src="assets/js/core.js"></script>
+<script src="assets/js/motion.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/engine.js"></script>
+<script src="assets/js/landing.js"></script>
+</body>
+</html>
