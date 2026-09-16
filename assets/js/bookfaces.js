@@ -468,7 +468,7 @@
     /* 5 · the story's own film when it has one, else the last figure, else the book in brief */
     var last = chars[3] || null;
     var filmSlug = st.film || null;
-    faces.push({ film: filmSlug, filmRect: { x: 0.10, y: 0.09, w: 0.80 }, pop: true,
+    faces.push({ film: filmSlug, filmRect: { x: 0.09, y: 0.085, w: 0.82, a: 760 / 1280 }, pop: true,
                  cards: (!filmSlug && last) ? [cardFor(last, 0.57, 0.085, 0.35)] : [], draw: function (ctx) {
       P.paper(ctx, W, H, { side: 'R', head: hd });
       var y = heading(ctx, 'V · In brief', filmSlug ? 'The story, in motion' : last ? last.name : 'The whole of it', 250);

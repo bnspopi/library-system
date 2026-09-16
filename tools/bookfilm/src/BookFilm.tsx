@@ -15,7 +15,8 @@ export const BookFilm: React.FC<BookFilmProps> = ({ title, author, hall, line, c
   const frame = useCurrentFrame();
   const { fps, durationInFrames, width, height } = useVideoConfig();
   const n = Math.max(1, characters.length);
-  const cardW = Math.min(300, (width * 0.55) / n), cardH = cardW * 4 / 3;
+  /* one or two figures get a bigger plate, so a short cast still fills the frame */
+  const cardW = Math.min(n === 1 ? 400 : n === 2 ? 340 : 300, (width * 0.62) / n), cardH = cardW * 4 / 3;
   const colW = width - (n * cardW + (n - 1) * 26) - width * 0.05 * 2 - 24;   // the type keeps clear of the figures
   const exit = interpolate(frame, [durationInFrames - 12, durationInFrames - 2], [0, 1],
     { easing: theme.ease.in, extrapolateLeft: "clamp", extrapolateRight: "clamp" });

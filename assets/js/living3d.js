@@ -547,7 +547,7 @@
   function buildFilm(book, slug, host, pageIndex, rect, pop) {
     rect = rect || { x: 0.08, y: 0.16, w: 0.84 };
     var pw = book.pw, ph = book.ph;
-    var plateW = rect.w * pw, plateH = plateW * 573 / 1280;
+    var plateW = rect.w * pw, plateH = plateW * (rect.a || 573 / 1280);
     var video = el('video', { muted: true, playsinline: true, preload: 'none',
                               disablepictureinpicture: true, 'aria-hidden': 'true' });
     video.muted = true;

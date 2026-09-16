@@ -13,6 +13,6 @@ const sample: BookFilmProps = {
 };
 
 export const RemotionRoot: React.FC = () => (
-  <Composition id="BookFilm" component={BookFilm} durationInFrames={240} fps={30} width={1280} height={574}
+  <Composition id="BookFilm" component={BookFilm} durationInFrames={240} fps={30} width={1280} height={760}
     defaultProps={sample} />
 );
