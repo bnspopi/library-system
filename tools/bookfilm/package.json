@@ -1,0 +1,15 @@
+{
+  "name": "aurelia-bookfilm",
+  "private": true,
+  "description": "Renders a short film for a title on the shelves from its character pictures: the people arrive out of the dark, breathe, and the story's line is spoken across them. Built with Remotion.",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render": "node render.mjs"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "remotion": "^4.0.0"
+  }
+}

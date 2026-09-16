@@ -7,7 +7,11 @@
    catalogue record. Pictures for the cards go in
    assets/characters/<slug>.jpg and are named in `image`.
 
-   LS.Stories.of(bib) -> { story: [..], characters: [{name, role, note, image}], world: [..], why }
+   A story may also name a `film`: the slug of a clip in scenes/, made
+   from that story's own pictures by tools/bookfilm. The book then gets
+   a film page that scrubs as the pages turn.
+
+   LS.Stories.of(bib) -> { story: [..], characters: [{name, role, note, image}], world: [..], why, film }
    ============================================================ */
 (function (global) {
   'use strict';
@@ -277,10 +281,12 @@
       why: 'A submarine, invented on paper in 1870, that the real ones were named after.'
     },
     'Moby-Dick; or, The Whale': {
+      film: 'story-moby-dick',
       story: ['Call me Ishmael. A schoolteacher signs on a Nantucket whaler, the Pequod, and shares a bed at the inn with a tattooed harpooner called Queequeg.',
               'The captain, Ahab, has one leg and one purpose: the white whale that took the other. He nails a gold doubloon to the mast for the man who sights it.',
               'Between the chase there is everything: the anatomy of whales, the colour white, the cook’s sermon to sharks. The whale wins.'],
-      characters: [C('Captain Ahab', 'The captain', 'Grand, ungodly, god-like: a man with a whalebone leg and a grudge.'),
+      characters: [C('The white whale', 'The whale', 'Scarred, enormous, and older than the grudge against it.', 'assets/characters/white-whale.jpg'),
+                   C('Captain Ahab', 'The captain', 'Grand, ungodly, god-like: a man with a whalebone leg and a grudge.'),
                    C('Ishmael', 'The survivor', 'Who tells it, because only he was left to.'),
                    C('Queequeg', 'The harpooner', 'A prince from an island not on any map, whose coffin becomes the lifebuoy.')],
       world: ['The Pequod', 'Nantucket', 'The doubloon', 'The try-works', 'The white whale'],
@@ -317,23 +323,25 @@
       why: 'The oldest story we have, and it is about grief.'
     },
     'The Odyssey': {
+      film: 'story-odyssey',
       story: ['Troy has fallen. Odysseus wants to go home to Ithaca, and it takes him ten years: the Cyclops, the Lotus-eaters, Circe, the Sirens, Scylla, Calypso, and the anger of Poseidon.',
               'At home Penelope weaves and unweaves a shroud to keep a hundred suitors waiting, and their son Telemachus goes looking for news.',
               'He comes back as a beggar, strings the bow no suitor could, and the hall is cleared by nightfall.'],
-      characters: [C('Odysseus', 'The man of many turns', 'Who blinded a giant and told him his name was Nobody.'),
+      characters: [C('Odysseus', 'The man of many turns', 'Who blinded a giant and told him his name was Nobody.', 'assets/characters/odysseus.jpg'),
                    C('Penelope', 'The weaver', 'Who tests even her husband, with a bed that cannot be moved.'),
                    C('Athena', 'The goddess', 'Grey-eyed, in disguise, and on his side.')],
       world: ['Ithaca', 'The Cyclops’ cave', 'The Sirens', 'Calypso’s island', 'The bow'],
       why: 'The journey home, three thousand years old, and still the shape of every one.'
     },
     'The Ramayana: A Shortened Modern Prose Version': {
+      film: 'story-ramayana',
       story: ['Rama, prince of Ayodhya, is exiled to the forest for fourteen years on the eve of his coronation. Sita, his wife, and Lakshmana, his brother, go with him.',
               'Ravana, the ten-headed king of Lanka, carries Sita off in his flying chariot. Rama’s search brings him Hanuman, who leaps the sea in one bound and finds her in the ashoka grove.',
               'The monkeys build a bridge, Lanka burns, Ravana falls, and Rama goes home to Ayodhya, where the lamps are still lit for him every year.'],
-      characters: [C('Rama', 'The prince', 'The seventh avatar of Vishnu, who keeps every promise, including the ones that cost him everything.'),
-                   C('Hanuman', 'The son of the wind', 'Who leaps the ocean, burns Lanka with his tail, and carries a mountain for a herb.'),
-                   C('Sita', 'The princess', 'Born of the earth, taken to Lanka, and unbroken there.'),
-                   C('Ravana', 'The king of Lanka', 'Ten heads, twenty arms, and a boon that protects him from everyone but a man.')],
+      characters: [C('Rama', 'The prince', 'The seventh avatar of Vishnu, who keeps every promise, including the ones that cost him everything.', 'assets/characters/rama.jpg'),
+                   C('Hanuman', 'The son of the wind', 'Who leaps the ocean, burns Lanka with his tail, and carries a mountain for a herb.', 'assets/characters/hanuman.jpg'),
+                   C('Sita', 'The princess', 'Born of the earth, taken to Lanka, and unbroken there.', 'assets/characters/sita.jpg'),
+                   C('Ravana', 'The king of Lanka', 'Ten heads, twenty arms, and a boon that protects him from everyone but a man.', 'assets/characters/ravana.jpg')],
       world: ['Ayodhya', 'The forest of Dandaka', 'The golden deer', 'Lanka', 'The bridge of the monkeys', 'Diwali'],
       why: 'Narayan’s telling: one evening long, and the whole epic in it.'
     },

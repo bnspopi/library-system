@@ -409,6 +409,9 @@
       state.auto = false;
       showSpots(-1);
       if (!en.book.built) en.book.build();
+      /* the clips on its pages start fetching now, so the film page is
+         moving by the time the pages get that far */
+      en.book.loadFilms();
       en.book.setTimeline(0);
       /* it starts on the shelf, in the picture, where you clicked */
       planePoint(sx === undefined ? 0.5 : sx, sy === undefined ? 0.55 : sy, en.holder.position);

@@ -1,0 +1,15 @@
+[
+  { "slug": "ramayana", "title": "The Ramayana", "author": "R. K. Narayan", "hall": "The Hall of Gods",
+    "line": "Rama, Sita, Hanuman and the long road to Lanka, told in one evening.",
+    "characters": [
+      { "name": "Rama", "role": "The prince", "image": "assets/characters/rama.jpg" },
+      { "name": "Hanuman", "role": "The son of the wind", "image": "assets/characters/hanuman.jpg" },
+      { "name": "Sita", "role": "The princess", "image": "assets/characters/sita.jpg" },
+      { "name": "Ravana", "role": "The king of Lanka", "image": "assets/characters/ravana.jpg" } ] },
+  { "slug": "odyssey", "title": "The Odyssey", "author": "Homer", "hall": "The Hall of Gods",
+    "line": "Ten years to get home from a war, and every god with an opinion about it.",
+    "characters": [ { "name": "Odysseus", "role": "The man of many turns", "image": "assets/characters/odysseus.jpg" } ] },
+  { "slug": "moby-dick", "title": "Moby-Dick", "author": "Herman Melville", "hall": "The Voyages Room",
+    "line": "Call me Ishmael. Then follow a captain who will not turn back.",
+    "characters": [ { "name": "The white whale", "role": "The whale", "image": "assets/characters/white-whale.jpg" } ] }
+]

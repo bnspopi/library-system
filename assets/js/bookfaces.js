@@ -465,13 +465,17 @@
       return [];
     } });
 
-    /* 5 · the last figure, or the book's own chapters */
+    /* 5 · the story's own film when it has one, else the last figure, else the book in brief */
     var last = chars[3] || null;
-    faces.push({ cards: last ? [cardFor(last, 0.57, 0.085, 0.35)] : [], draw: function (ctx) {
+    var filmSlug = st.film || null;
+    faces.push({ film: filmSlug, filmRect: { x: 0.10, y: 0.09, w: 0.80 }, pop: true,
+                 cards: (!filmSlug && last) ? [cardFor(last, 0.57, 0.085, 0.35)] : [], draw: function (ctx) {
       P.paper(ctx, W, H, { side: 'R', head: hd });
-      var y = heading(ctx, 'V · In brief', last ? last.name : 'The whole of it', 250);
-      if (last) { plinth(ctx, 690); y = 780; } else y += 60;
-      if (last) y = P.text(ctx, last.note, M, y, { font: F.display, size: 27, italic: true, color: K.ink, maxW: W - 2 * M, lh: 36 }) + 40;
+      var y = heading(ctx, 'V · In brief', filmSlug ? 'The story, in motion' : last ? last.name : 'The whole of it', 250);
+      if (filmSlug) { plinth(ctx, 600); y = 780; }
+      else if (last) { plinth(ctx, 690); y = 780; } else y += 60;
+      if (filmSlug) y = P.text(ctx, 'The film moves when you scroll: the people of the story, out of the dark.', M, y, { font: F.display, size: 27, italic: true, color: K.ink, maxW: W - 2 * M, lh: 36 }) + 40;
+      else if (last) y = P.text(ctx, last.note, M, y, { font: F.display, size: 27, italic: true, color: K.ink, maxW: W - 2 * M, lh: 36 }) + 40;
       story.forEach(function (s, i) {
         var cut = s.search(/[.!?]\s/); var line = ellipsize(ctx, cut > 0 ? s.slice(0, cut + 1) : s, W - 2 * M - 60);
         P.text(ctx, String(i + 1), M, y + 2, { font: F.mono, size: 18, color: K.gold });
