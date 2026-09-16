@@ -77,7 +77,7 @@ body.modal-open { overflow: hidden; }
   border-radius: var(--r-pill);
   color: var(--text);
   font-size: 13px;
-  transition: all var(--t-mid) var(--ease);
+  transition: color var(--t-mid) var(--ease), background-color var(--t-mid) var(--ease), border-color var(--t-mid) var(--ease), box-shadow var(--t-mid) var(--ease), transform var(--t-mid) var(--ease), opacity var(--t-mid) var(--ease);
 }
 .topsearch-input::placeholder { color: var(--faint); }
 .topsearch-input:focus {
@@ -129,7 +129,7 @@ body.modal-open { overflow: hidden; }
   color: var(--muted);
   font-size: 11.5px;
   cursor: pointer;
-  transition: all var(--t-fast) var(--ease);
+  transition: color var(--t-fast) var(--ease), background-color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease), transform var(--t-fast) var(--ease), opacity var(--t-fast) var(--ease);
   white-space: nowrap;
 }
 .clockchip:hover { border-color: var(--gold-line); color: var(--gold); }
@@ -144,7 +144,7 @@ body.modal-open { overflow: hidden; }
   padding: 6px 15px; border: 0; border-radius: var(--r-pill);
   background: transparent; color: var(--faint);
   font-size: 10.5px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase;
-  cursor: pointer; transition: all var(--t-mid) var(--ease);
+  cursor: pointer; transition: color var(--t-mid) var(--ease), background-color var(--t-mid) var(--ease), border-color var(--t-mid) var(--ease), box-shadow var(--t-mid) var(--ease), transform var(--t-mid) var(--ease), opacity var(--t-mid) var(--ease);
 }
 .modebtn.is-active {
   background: linear-gradient(180deg, var(--gold-bright), var(--gold));
@@ -296,7 +296,7 @@ body.mode-opac .rail, body.mode-opac .feed {
   border: 1px solid var(--line); border-radius: var(--r-sm);
   background: var(--surface-2); color: var(--faint);
   font-size: 10px; cursor: pointer; z-index: 30;
-  transition: all var(--t-mid) var(--ease);
+  transition: color var(--t-mid) var(--ease), background-color var(--t-mid) var(--ease), border-color var(--t-mid) var(--ease), box-shadow var(--t-mid) var(--ease), transform var(--t-mid) var(--ease), opacity var(--t-mid) var(--ease);
 }
 .feed-toggle:hover { color: var(--gold); border-color: var(--gold-line); }
 body.feed-hidden .feed-toggle { right: 0; }
@@ -630,7 +630,7 @@ button.listrow { cursor: pointer; }
   border: 1px solid var(--line); border-radius: var(--r-sm);
   background: var(--ink-2);
   text-align: left; cursor: pointer; font-family: inherit;
-  transition: all var(--t-fast) var(--ease);
+  transition: color var(--t-fast) var(--ease), background-color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease), transform var(--t-fast) var(--ease), opacity var(--t-fast) var(--ease);
 }
 .pickchip:hover {
   border-color: var(--gold-line); background: var(--surface-2); transform: translateY(-2px);
@@ -845,7 +845,7 @@ button.listrow { cursor: pointer; }
   padding: 5px 9px; border: 0; border-radius: var(--r-xs);
   background: transparent; color: var(--muted);
   font-size: 12px; font-family: inherit; text-align: left; cursor: pointer;
-  transition: all var(--t-fast) var(--ease);
+  transition: color var(--t-fast) var(--ease), background-color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease), transform var(--t-fast) var(--ease), opacity var(--t-fast) var(--ease);
 }
 .facet-btn:hover { background: rgba(255,255,255,.04); color: var(--cream); }
 .facet-btn.is-active { background: var(--gold-ghost); color: var(--gold); }
@@ -951,7 +951,7 @@ button.listrow { cursor: pointer; }
   border: 1px solid var(--line); border-radius: var(--r-sm);
   background: var(--surface); text-align: left;
   cursor: pointer; font-family: inherit;
-  transition: all var(--t-fast) var(--ease);
+  transition: color var(--t-fast) var(--ease), background-color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease), transform var(--t-fast) var(--ease), opacity var(--t-fast) var(--ease);
 }
 .ordercard:hover {
   border-color: var(--gold-line); transform: translateY(-2px);
@@ -997,7 +997,7 @@ button.listrow { cursor: pointer; }
   padding: 13px;
   border: 1px solid var(--line); border-radius: var(--r-sm);
   background: var(--ink-2);
-  transition: all var(--t-mid) var(--ease);
+  transition: color var(--t-mid) var(--ease), background-color var(--t-mid) var(--ease), border-color var(--t-mid) var(--ease), box-shadow var(--t-mid) var(--ease), transform var(--t-mid) var(--ease), opacity var(--t-mid) var(--ease);
 }
 .issuecard:hover { transform: translateY(-3px); border-color: var(--gold-line); }
 .issuecard-ok     { border-left: 2px solid var(--ok); }
@@ -1106,7 +1106,7 @@ button.listrow { cursor: pointer; }
   background: var(--ink); border: 1px solid var(--line); border-radius: var(--r-xs);
   color: var(--cream); font-family: var(--font-mono); font-size: 12px;
   text-align: right;
-  transition: all var(--t-fast) var(--ease);
+  transition: color var(--t-fast) var(--ease), background-color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease), transform var(--t-fast) var(--ease), opacity var(--t-fast) var(--ease);
 }
 .matrixinput:focus {
   outline: none; border-color: var(--gold);
@@ -1141,7 +1141,7 @@ button.listrow { cursor: pointer; }
   border: 1px solid var(--line); border-radius: var(--r-sm);
   background: var(--ink-2); cursor: pointer; font-family: inherit;
   animation: popIn 380ms var(--ease-out) both;
-  transition: all var(--t-fast) var(--ease);
+  transition: color var(--t-fast) var(--ease), background-color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease), transform var(--t-fast) var(--ease), opacity var(--t-fast) var(--ease);
 }
 .calday:hover { border-color: var(--gold-line); transform: translateY(-2px); }
 .calday b { font-size: 14px; color: var(--cream); font-variant-numeric: tabular-nums; }
@@ -1171,7 +1171,7 @@ button.listrow { cursor: pointer; }
   border: 1px solid var(--line); border-radius: var(--r-sm);
   background: var(--ink-2); text-align: left;
   cursor: pointer; font-family: inherit;
-  transition: all var(--t-fast) var(--ease);
+  transition: color var(--t-fast) var(--ease), background-color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease), transform var(--t-fast) var(--ease), opacity var(--t-fast) var(--ease);
 }
 .rolecard:hover { border-color: var(--gold-line); }
 .rolecard.is-active { border-color: var(--gold); background: var(--gold-ghost); }
@@ -1183,7 +1183,7 @@ button.listrow { cursor: pointer; }
   padding: 16px 8px;
   border: 1px solid var(--line); border-radius: var(--r-md);
   background: var(--ink-2); cursor: pointer; font-family: inherit;
-  transition: all var(--t-fast) var(--ease);
+  transition: color var(--t-fast) var(--ease), background-color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease), transform var(--t-fast) var(--ease), opacity var(--t-fast) var(--ease);
 }
 .clockbtn:hover {
   border-color: var(--gold); background: var(--gold-ghost); transform: translateY(-3px);
@@ -1483,7 +1483,7 @@ button.listrow { cursor: pointer; }
   border: 1px solid var(--gold-line); border-radius: var(--r-md);
   background: linear-gradient(145deg, #1D1812, #12100D);
   text-align: left; cursor: pointer; font-family: inherit;
-  transition: all var(--t-mid) var(--ease);
+  transition: color var(--t-mid) var(--ease), background-color var(--t-mid) var(--ease), border-color var(--t-mid) var(--ease), box-shadow var(--t-mid) var(--ease), transform var(--t-mid) var(--ease), opacity var(--t-mid) var(--ease);
 }
 .librarycard:hover {
   transform: translateY(-4px) rotate(-.6deg);
@@ -1538,7 +1538,7 @@ button.listrow { cursor: pointer; }
   background: var(--ink-2); text-align: left;
   cursor: pointer; font-family: inherit;
   animation: popIn 380ms var(--ease-out) both;
-  transition: all var(--t-fast) var(--ease);
+  transition: color var(--t-fast) var(--ease), background-color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease), transform var(--t-fast) var(--ease), opacity var(--t-fast) var(--ease);
 }
 .kiosk-item:hover {
   border-color: var(--gold); background: var(--gold-ghost); transform: translateY(-3px);

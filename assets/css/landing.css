@@ -1,3 +1,13 @@
+/* scroll-craft tokens: the engine is themed with ours */
+:root {
+  --sc-canvas: #090807; --sc-surface: #151210;
+  --sc-ink: #F6F1E7; --sc-ink-soft: #A49B8B;
+  --sc-accent: #D6B774; --sc-accent-ink: #090807;
+  --sc-font-display: var(--font-display); --sc-font-text: var(--font-ui); --sc-font-mono: var(--font-mono);
+}
+html { scroll-behavior: auto; }
+body { background: var(--sc-canvas); }     /* the ground drifts with the sections */
+
 /* ============================================================
    landing.css — the explainer page
    ============================================================ */
@@ -611,3 +621,7 @@ body { background: var(--ink); }
 }
 .tickline b { color: var(--cream); font-size: 13.5px; font-weight: 500; }
 .tickline p { margin: 3px 0 0; font-size: 12.5px; color: var(--faint); }
+
+/* the intro: the old hero, now the first chapter after the orrery */
+.hero-intro { min-height: 0; padding-block: clamp(96px, 12vw, 170px) clamp(60px, 8vw, 96px); }
+.section-num { display: none; }

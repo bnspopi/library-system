@@ -528,7 +528,7 @@
     var facts = U.$$('.hero-facts .fact b');
     [null, db.bibs.length, db.items.length, db.policies.length, null]
       .forEach(function (v, i) {
-        if (v !== null && facts[i]) facts[i].setAttribute('data-count', v);
+        if (v !== null && facts[i]) facts[i].setAttribute('data-sc-count', '0 ' + v);
       });
 
     buildRoles();
@@ -542,6 +542,55 @@
     var stacks = document.getElementById('stackwalk');
     if (stacks && LS.ShelfWalk) {
       LS.ShelfWalk.mount(stacks, { scroller: global, title: 'THE STACKS' });
+    }
+
+    /* the opening: the tour hides the site chrome while it is on screen */
+    var tourHost = document.getElementById('tour');
+    var tour = null;
+    if (tourHost && LS.Scenes) {
+      tour = LS.Scenes.mount(tourHost, {
+        scroller: global,
+        onTourToggle: function (on) { document.body.classList.toggle('is-touring', on); }
+      });
+    }
+
+    /* the landing page: the orrery */
+    var orreryHost = document.getElementById('orrery');
+    var orrery = null;
+    if (orreryHost && LS.Orrery) {
+      orrery = LS.Orrery.mount(orreryHost, {
+        scroller: global,
+        onWalk: function (key) { if (tour) tour.go(key); }
+      });
+    }
+
+    /* scroll-craft drives the explainer sections: reveals, kinetic headings,
+       counters, the ground colour drifting as you travel */
+    if (global.ScrollCraft) {
+      var craft = ScrollCraft.mount(document);
+      /* the pinned stages change the page's geometry after the engine measured it */
+      if (global.ScrollTrigger) ScrollTrigger.addEventListener('refresh', function () { craft.layout(); craft.read(); });
+    }
+    LS.landing = { tour: tour, orrery: orrery };
+
+    /* an anchor that lands exactly on a pinned stage's top edge leaves
+       ScrollTrigger undecided about whether the stage is on screen, so
+       links to the tour and the orrery land a couple of pixels inside */
+    function pinnedTop(hash) {
+      if (hash === '#orrery' && orrery && orrery.trigger && orrery.trigger()) return orrery.trigger().start + 2;
+      if (hash === '#tour') return 2;
+      return null;
+    }
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var top = pinnedTop(a.getAttribute('href'));
+      if (top === null) return;
+      e.preventDefault();
+      global.scrollTo({ top: top, behavior: 'smooth' });
+    });
+    if (pinnedTop(location.hash) !== null) {
+      setTimeout(function () { global.scrollTo({ top: pinnedTop(location.hash), behavior: 'auto' }); }, 700);
     }
 
     Motion.boot();

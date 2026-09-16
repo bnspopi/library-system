@@ -210,7 +210,17 @@
      ============================================================ */
 
   function route() {
-    var key = (location.hash || '#/overview').replace(/^#\/?/, '') || 'overview';
+    var raw = (location.hash || '#/overview').replace(/^#\/?/, '');
+    var parts = raw.split('?');
+    var key = parts[0] || 'overview';
+    if (parts[1]) {
+      /* a deep link such as #/opac?collection=kids carries its own params */
+      App.params = {};
+      parts[1].split('&').forEach(function (kv) {
+        var p = kv.split('=');
+        if (p[0]) App.params[decodeURIComponent(p[0])] = decodeURIComponent(p[1] || '');
+      });
+    }
     if (!LS.views[key]) key = 'overview';
     setMode(key === 'opac' ? 'opac' : 'staff', true);
     renderView(key, false);

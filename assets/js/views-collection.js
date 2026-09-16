@@ -41,6 +41,9 @@
     mount.appendChild(el('div.catgrid', {}, [
       el('div.facets', { 'data-enter': '' }, [
         el('div.panel-title', { style: { marginBottom: '14px' }, text: 'Refine' }),
+        facetBlock('Collection', 'collection', E.db().collections.map(function (c) {
+          var hit = facets.collection.find(function (f) { return f.key === c.key; });
+          return { key: c.key, n: hit ? hit.n : 0, label: c.name }; })),
         facetBlock('Format', 'format', facets.format),
         facetBlock('Branch', 'branch', facets.branch.map(function (f) {
           return { key: f.key, n: f.n, label: E.branch(f.key).name }; })),
@@ -110,7 +113,7 @@
       if (!list.length) return null;
       return el('div.facet', {}, [
         el('div.facet-title', { text: title }),
-        el('ul', {}, list.slice(0, 6).map(function (f) {
+        el('ul', {}, list.slice(0, key === 'collection' ? 12 : 6).map(function (f) {
           var active = String(cat.filters[key]) === String(f.key);
           return el('li', {}, el('button.facet-btn' + (active ? '.is-active' : ''), {
             onclick: function () {

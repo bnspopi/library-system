@@ -13,8 +13,20 @@
 
   var opac = { q: '', filters: {}, sort: 'relevance', me: null, tab: 'search' };
 
-  LS.views.opac = function (mount) {
+  LS.views.opac = function (mount, params) {
     mount.classList.add('opac');
+
+    /* the previous render's pinned journey must release its ScrollTriggers
+       before the DOM they pinned is thrown away */
+    if (opac.journey) { opac.journey.destroy(); opac.journey = null; }
+
+    /* deep link into one collection's shelf */
+    if (params && params.collection) {
+      opac.filters = { collection: params.collection };
+      opac.q = '';
+      opac.tab = 'search';
+      params.collection = null;
+    }
 
     /* ---------------- hero ---------------- */
     var hero = el('section.opac-hero.grain', { 'data-spotlight': '' }, [
@@ -63,6 +75,7 @@
         items: [
           { key: 'search',  label: 'Catalogue',   icon: '⌕' },
           { key: 'stacks',  label: 'Walk the stacks', icon: '▦' },
+          { key: 'collections', label: 'Collections', icon: '▤' },
           { key: 'account', label: 'My account',  icon: '◍',
             badge: st ? st.loans.length + st.holds.length : null },
           { key: 'kiosk',   label: 'Self-check',  icon: '▭' },
@@ -86,6 +99,7 @@
     mount.appendChild(pane);
 
     if (opac.tab === 'stacks')  renderStacks(pane);
+    if (opac.tab === 'collections') renderCollections(pane);
     if (opac.tab === 'search')  renderSearch(pane);
     if (opac.tab === 'account') renderAccount(pane);
     if (opac.tab === 'kiosk')   renderKiosk(pane);
@@ -112,6 +126,9 @@
             } }),
           el('span', { text: 'Available now' })
         ]),
+        facetBlock('Collection', 'collection', E.db().collections.map(function (c) {
+          var hit = facets.collection.find(function (f) { return f.key === c.key; });
+          return { key: c.key, n: hit ? hit.n : 0, label: c.n + ' · ' + c.name }; })),
         facetBlock('Format', 'format', facets.format),
         facetBlock('Branch', 'branch', facets.branch.map(function (f) {
           return { key: f.key, n: f.n, label: E.branch(f.key).name }; })),
@@ -159,7 +176,7 @@
       if (!list.length) return null;
       return el('div.facet', {}, [
         el('div.facet-title', { text: title }),
-        el('ul', {}, list.slice(0, 6).map(function (f) {
+        el('ul', {}, list.slice(0, key === 'collection' ? 12 : 6).map(function (f) {
           var active = String(opac.filters[key]) === String(f.key);
           return el('li', {}, el('button.facet-btn' + (active ? '.is-active' : ''), {
             onclick: function () {
@@ -198,7 +215,14 @@
           a.queue ? el('span.chip.chip-gold', { text: a.queue + ' waiting' }) : null,
           mine ? el('span.chip.chip-info', { text: 'You have this out' }) : null,
           held ? el('span.chip.chip-gold', { text: 'You are in the queue' }) : null,
-          el('span.chip', { text: b.format })
+          el('span.chip', { text: b.format }),
+          E.collection(b.collection) ? el('button.chip.chip-gold', {
+            title: 'Browse this collection',
+            onclick: function (ev) {
+              ev.stopPropagation();
+              opac.filters = { collection: b.collection }; opac.tab = 'search';
+              App.render('opac', false);
+            }, text: E.collection(b.collection).name }) : null
         ]),
         el('div.row.wrapflex.pubcard-actions', { style: { '--gap': '8px' } }, [
           el('button.btn.btn-sm', { 'data-ripple': '',
@@ -360,6 +384,30 @@
       patronId: opac.me,
       title: 'THE STACKS',
       onReserved: function () { App.render('opac', false); }
+    });
+  }
+
+  /* ============================================================
+     the collections journey
+     ============================================================ */
+
+  function renderCollections(pane) {
+    pane.appendChild(el('p.lede', { 'data-enter': '', style: { marginBottom: '20px' }, text:
+      'Scroll this panel to walk the nine halls. Every frame moves only when you do. Reach the ' +
+      'end of a hall and its shelf opens here in the catalogue.' }));
+    /* no entrance animation on this host: a transform on the parent while GSAP
+       measures its pins leaves every hall a few pixels off for the whole session */
+    var host = el('div');
+    pane.appendChild(host);
+    opac.journey = LS.Scenes.mount(host, {
+      scroller: document.getElementById('view') || global,
+      embedded: true,
+      onBrowse: function (key) {
+        opac.filters = { collection: key }; opac.q = ''; opac.tab = 'search';
+        App.render('opac', false);
+        var v = document.getElementById('view'); if (v) v.scrollTop = 0;
+      },
+      onExit: function () { App.go('overview'); }
     });
   }
 

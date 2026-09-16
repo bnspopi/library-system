@@ -232,7 +232,7 @@ hr {
   background: transparent;
   color: var(--muted);
   cursor: pointer;
-  transition: all var(--t-fast) var(--ease);
+  transition: color var(--t-fast) var(--ease), background-color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease), transform var(--t-fast) var(--ease), opacity var(--t-fast) var(--ease);
 }
 .icon-btn:hover { color: var(--gold); border-color: var(--gold-line); background: var(--gold-ghost); }
 

@@ -8,7 +8,7 @@ Two pages, no build step, no backend:
 
 | Page | What it is |
 |------|------------|
-| `index.html` | An animated explainer — **a scroll-scrubbed walk down the stacks**, the architecture, the data model, a module-by-module walkthrough, the life of one book, a live rules playground and the interoperability standards. |
+| `index.html` | The opening tour (arrive on foot, choose a door in the reception, walk a hall as a WebGL room built from the footage), the orrery (the great book with every hall in orbit, opened by the scroll bar), the walk down the stacks, then the explainer: architecture, data model, modules, the life of one book, a live rules playground and the standards. |
 | `app.html` | The system itself. A staff client with thirteen modules and a public catalogue, both reading and writing one shared in-browser database. |
 
 Everything is real logic. Issue a reference copy and it is refused. Return a book somebody is
@@ -35,20 +35,99 @@ No footage, no asset downloads, no 3D library: it is `assets/css/shelfwalk.css` 
 `assets/js/shelfwalk.js`, which mounts against either the window (landing page) or the app's own
 scroll pane (staff client).
 
-## Run it locally
+## The Living Stacks: the tour, the rooms and the orrery
 
-It is static — any web server will do, and it even works opened straight off disk.
+The page opens on a tour, and only after it does the landing page appear.
+
+**The arrival.** You arrive on foot: a wet street, the steps, the doors, a corridor, the reading
+hall. Every clip is scrubbed by the scroll bar. Nothing plays on its own.
+
+**The reception.** A room of doorways around you. Drag to look round, or click a door or the stairs
+(NW is the Children's Wing, W the Closed Wing, E the Atlas Vault, the stairs go up to Science and
+Technology). Scrolling walks you through the door you face, and the hall behind it follows. The
+other halls wait behind their doors until you choose them; the rail on the left reaches any of them.
+
+**The rooms.** Inside a hall the footage is not behind the scene, it is the scene. Each clip is
+wrapped round you as the floor and a curved wall of a WebGL room. Dragging turns your head inside
+the shot, scrolling walks you into it while the film scrubs and the beats crossfade, and the
+things in the footage are clickable: the book on the table turns the page (the scroll moves on to
+the next beat), the whale opens its record, the door walks you on, the plinth pushes the camera in.
+Hover anything with a gold ring and it is named. The titles on the hall's shelf float in the room
+in front of the wall; click one and it comes down to you, click it again and it opens: the record
+and the reservation on the left, and the hall's own clip standing up out of the right-hand page,
+still driven by the scroll bar and still clickable. Escape, or a click away, puts it back.
+
+**The orrery.** The landing page proper: the great book turning at the centre with a book for
+every hall in orbit around it, the orbit clip as the backdrop. Drag to turn it. Click any book (or
+its chip) and it comes to you; from there the scroll bar opens it, cover first, then page after
+page with curling sheets: an ex libris, a title page with a clip standing up out of it, the hall's
+captions, a film page, the live shelf (click a row to reserve it), the way to the catalogue, and
+the next hall. The great book holds the system itself: what it is, its ten modules (click one to
+open it in the staff client), the numbers, the standards it speaks.
+
+Reserving anywhere writes a real hold into the same database the circulation desk uses. The same
+tour is a tab in the OPAC (**Public → Collections**), pinned inside the app's own scroll pane.
+
+### The footage
+
+Sixty-one clips live in `public/scenes/`, catalogued by hall in `REGISTRY` in `assets/js/scenes.js`
+as beats `{ src, label, lines }`. What is clickable inside each clip is in `assets/js/hotspots.js`:
+rectangles of the frame with a label and an action (`turn`, `reserve`, `look`, `book`, `hall`).
+Adding a clip is one line in the registry and, optionally, a line of hotspots.
+
+Scrubbing is only frame-accurate when every frame is a keyframe, so clips are re-encoded all-intra,
+muted, 1280 px wide, with a poster frame and a lighter 720 px copy for phones. Generator marks sit
+in the bottom band of the frame and are cropped away, not painted over:
 
 ```bash
-# any one of these
-python3 -m http.server 5173     # → http://localhost:5173
-npx serve .
-npm run dev
-
-# or just open the file
-open index.html                 # macOS
-xdg-open index.html             # Linux
+# 1920x1080 sources: crop the bottom 220 px
+ffmpeg -i in.mp4 -an -vf "crop=1920:860:0:0,scale=1280:-2" \
+  -c:v libx264 -preset slow -crf 29 -g 1 -pix_fmt yuv420p -movflags +faststart public/scenes/<slug>.mp4
+# 1280x720 sources: crop the bottom 64 px
+ffmpeg -i in.mp4 -an -vf "crop=1280:656:0:0" \
+  -c:v libx264 -preset slow -crf 29 -g 1 -pix_fmt yuv420p -movflags +faststart public/scenes/<slug>.mp4
+# the poster, and the phone copy
+ffmpeg -i public/scenes/<slug>.mp4 -frames:v 1 -q:v 4 public/scenes/<slug>.jpg
+ffmpeg -i public/scenes/<slug>.mp4 -an -vf "scale=720:-2" -c:v libx264 -preset slow -crf 30 -g 1 \
+  -pix_fmt yuv420p -movflags +faststart public/scenes/<slug>-m.mp4
 ```
+
+Seeking needs a server that answers HTTP Range requests. Vercel does; `npx serve` does;
+`python -m http.server` does not, and the clips will sit on their first frame.
+
+### What it is built on
+
+- **three.js** (`assets/vendor/three.min.js`, MIT, r186, with the SVG loader and room environment
+  bundled) draws the rooms, the books and the orrery. `assets/js/living3d.js` is the engine: a
+  pool of two renderers handed to whichever pinned stage is on screen, the book (covers, curling
+  sheets, canvas pages, films standing up out of the page), the reader that takes a book down and
+  puts it back. `assets/js/bookfaces.js` writes the pages. `assets/js/hall3d.js` is a room,
+  `assets/js/orrery.js` the landing page.
+- **GSAP ScrollTrigger** (`assets/vendor/gsap.min.js`, `ScrollTrigger.min.js`, Standard "no
+  charge" license) pins every stage and scrubs it.
+- **scroll-craft** (`assets/vendor/scrollcraft.js`, `.css`, MIT, from
+  github.com/nateherkai/scroll-craft) drives the explainer sections below the orrery: reveals,
+  headings that assemble line by line, counters, the ground colour drifting as you travel. Its
+  craft rules are followed on the page: no scroll cues, no section counters, no visible em dashes,
+  at most one eyebrow in three sections.
+- The motion vocabulary follows the HyperFrames student kit's notes (spin reveals, the hero shot
+  held, the vignette breathing) and the pages follow the frontend-design guardrails (two families,
+  transforms and opacity only, hover, focus and active states on everything clickable).
+
+No build step: everything is a classic script on `window.LS`.
+
+## Run it locally
+
+It is static, so any web server that answers HTTP Range requests will do (the clips are seeked,
+never played, and a server without Range support leaves them on their first frame):
+
+```bash
+npx serve .                     # → http://localhost:3000
+npm run dev
+```
+
+`python -m http.server` and opening the files straight off disk still run the app; only the
+scrubbed footage needs the Range support.
 
 ---
 
@@ -122,12 +201,22 @@ assets/
     base.css          reset, typography, buttons, forms, tables
     motion.css        the CSS half of the animation layer
     shelfwalk.css     the 3D stacks corridor and the book-opening reservation
+    scenes.css        the tour: pinned halls, the reception, rail, captions
+    living3d.css      the 3D layer: canvas, hints, hotspot tags, the orrery
     landing.css       explainer page
     app.css           staff client and OPAC
   js/
     core.js           namespace, dates, money, event bus, demo clock
     motion.js         scroll reveals, counters, marquees, tilt, magnetic, parallax
     shelfwalk.js      the scroll-scrubbed walk down the aisle + reserve-a-book flow
+    scenes.js         the tour: clip registry, the reception, GSAP ScrollTrigger scrubbing
+    living3d.js       the 3D engine: renderer pool, the book, the reader
+    bookfaces.js      what is written on the pages
+    hotspots.js       what is clickable inside every clip
+    hall3d.js         a hall as a room built from its footage
+    orrery.js         the landing page
+  vendor/             gsap, ScrollTrigger, three.js, scrollcraft
+public/scenes/        the clips (all-intra H.264, 1280 px wide, plus -m phone copies) and posters
     data.js           the seed dataset — bibs, items, patrons, funds, serials, policies
     engine.js         the business rules: circulation, holds, fines, acquisitions, the nightly job
     ui.js             toasts, modals, drawers, tabs, charts, receipts
@@ -138,7 +227,7 @@ assets/
     views-opac.js     public catalogue, member account, self-check kiosk
 ```
 
-Plain scripts on `window.LS`, no bundler and no dependencies, which is why it runs from `file://`.
+Plain scripts on `window.LS` and no bundler; the vendored libraries are the only dependencies.
 
 ### The layers
 
@@ -188,6 +277,8 @@ every panel updated, which is what the live activity rail on the right of the st
 
 - **Walk the stacks** — scroll to the end of the aisle, pull a gilt-edged spine off the shelf and
   reserve it, then find that hold waiting on the staff side under Holds & transit.
+- **Collections** — scroll the nine halls; every frame moves only when you do. Reach the end of
+  one and open its shelf. Deep links work too: `app.html#/opac?collection=mythology`.
 - Search, facet, place a hold, then look at the same hold from the staff side.
 - Sign in with any demo library card. Two of them are blocked.
 - Renew a loan; it is refused for exactly the reasons the desk would refuse it.

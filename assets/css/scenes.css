@@ -1,0 +1,441 @@
+/* ============================================================
+   scenes.css — "The Living Stacks" collections journey
+   Pairs with scenes.js. GSAP pins .jr-hall; everything inside is
+   positioned against the pinned stage.
+   ============================================================ */
+
+.jr { position: relative; background: #050404; }
+
+/* ------------------------------------------------------------
+   a hall
+   ------------------------------------------------------------ */
+.jr-hall {
+  position: relative;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  background: #050404;
+}
+.jr-embedded .jr-hall { height: min(80vh, 760px); border-radius: var(--r-xl); }
+.jr-static .jr-hall { height: auto; min-height: 60vh; }
+
+.jr-stage { position: absolute; inset: 0; isolation: isolate; }
+.jr-static .jr-stage { position: relative; height: 62vh; min-height: 420px; }
+
+/* the film plane: every beat stacked, opacity driven by scroll */
+.jr-film { position: absolute; inset: 0; }
+.jr-beat {
+  position: absolute; inset: 0;
+  will-change: opacity;
+}
+.jr-beat > img, .jr-beat > video {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: 50% 42%;
+}
+.jr-beat > img { filter: saturate(.92); }
+.jr-beat > video { opacity: 0; transition: opacity 420ms var(--ease); }
+.jr-beat.is-ready > video { opacity: 1; }
+/* title halls keep the whole cropped frame in a cinema band */
+.jr-stage-title .jr-beat > img, .jr-stage-title .jr-beat > video { object-fit: cover; }
+
+/* ------------------------------------------------------------
+   overlays
+   ------------------------------------------------------------ */
+.jr-scrim {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(5,4,4,.62) 0%, rgba(5,4,4,.10) 26%,
+                    rgba(5,4,4,0) 55%, rgba(5,4,4,.70) 100%),
+    linear-gradient(90deg, rgba(5,4,4,.55) 0%, rgba(5,4,4,0) 38%);
+}
+.jr-grain {
+  position: absolute; inset: 0; pointer-events: none;
+  opacity: .32; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/><feColorMatrix type='saturate' values='0'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='.34'/></svg>");
+}
+
+/* big serif title on the prologue only */
+.jr-title {
+  position: absolute; left: 50%; top: 44%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(44px, 9.5vw, 148px);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgba(246,241,231,.94);
+  text-shadow: 0 6px 60px rgba(0,0,0,.95);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------
+   HUD — top strip: number, hall, live stats, progress
+   ------------------------------------------------------------ */
+.jr-hud {
+  position: absolute;
+  left: var(--gutter); right: var(--gutter);
+  top: calc(var(--header-h) + clamp(12px, 2.4vh, 28px));
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 20px; pointer-events: none;
+}
+.jr-embedded .jr-hud { top: clamp(16px, 3vh, 26px); left: 22px; right: 22px; }
+.jr-hud-l { display: flex; align-items: center; gap: 16px; }
+.jr-hud-num {
+  font-family: var(--font-display);
+  font-size: clamp(34px, 5vw, 64px); line-height: 1;
+  color: var(--gold);
+  text-shadow: 0 2px 30px rgba(0,0,0,.9);
+}
+.jr-hud-name {
+  font-family: var(--font-display);
+  font-size: clamp(20px, 2.4vw, 30px); line-height: 1.1;
+  color: var(--cream);
+  text-shadow: 0 2px 30px rgba(0,0,0,.9);
+}
+.jr-hud-hall {
+  margin-top: 4px;
+  font-size: 10px; letter-spacing: var(--tracking-mid); text-transform: uppercase;
+  color: var(--gold);
+}
+.jr-hud-r { text-align: right; min-width: 180px; }
+.jr-hud-stats b { display: block; font-size: 13px; color: var(--cream); font-weight: 500; }
+.jr-hud-stats span {
+  display: block; margin-top: 2px;
+  font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted);
+}
+.jr-progress {
+  margin: 10px 0 0 auto; width: 160px; height: 1px;
+  background: rgba(246,241,231,.16); overflow: hidden;
+}
+.jr-progress > span {
+  display: block; height: 100%;
+  transform-origin: 0 50%; transform: scaleX(0);
+  background: linear-gradient(90deg, var(--gold-deep), var(--gold-bright));
+}
+.jr-dots { display: flex; justify-content: flex-end; gap: 6px; margin-top: 8px; }
+.jr-dots i {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: rgba(246,241,231,.22);
+  transition: background var(--t-mid) var(--ease), transform var(--t-mid) var(--ease);
+}
+.jr-dots i.is-on { background: var(--gold); transform: scale(1.35); }
+
+/* ------------------------------------------------------------
+   the rail — index of the nine halls, pinned with the stage
+   ------------------------------------------------------------ */
+.jr-rail {
+  position: absolute; left: var(--gutter); top: 50%;
+  transform: translateY(-50%);
+  display: flex; flex-direction: column; gap: 2px;
+  z-index: 3;
+}
+.jr-embedded .jr-rail { left: 22px; }
+.jr-rail-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 5px 8px 5px 0;
+  border: 0; background: none;
+  color: rgba(246,241,231,.42);
+  font-family: inherit; font-size: 11.5px; letter-spacing: .03em;
+  text-align: left; cursor: pointer;
+  transition: color var(--t-mid) var(--ease), transform var(--t-mid) var(--ease-out);
+}
+.jr-rail-item:hover { color: var(--cream); transform: translateX(3px); }
+.jr-rail-n {
+  font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .08em;
+  width: 18px; color: rgba(246,241,231,.3);
+}
+.jr-rail-name { position: relative; text-shadow: 0 1px 18px rgba(0,0,0,.9); }
+.jr-rail-name::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -2px; height: 1px;
+  background: var(--gold); transform: scaleX(0); transform-origin: left;
+  transition: transform var(--t-mid) var(--ease-out);
+}
+.jr-rail-item.is-active { color: var(--gold); }
+.jr-rail-item.is-active .jr-rail-n { color: var(--gold); }
+.jr-rail-item.is-active .jr-rail-name::after { transform: scaleX(1); }
+
+/* ------------------------------------------------------------
+   captions — same voice as the rest of the site
+   ------------------------------------------------------------ */
+.jr-caption {
+  position: absolute;
+  left: var(--gutter); bottom: clamp(60px, 12vh, 118px);
+  max-width: min(600px, 64vw);
+  pointer-events: none;
+}
+.jr-embedded .jr-caption { left: 22px; bottom: 74px; max-width: 70%; }
+.jr-caption-label {
+  display: block;
+  font-size: 9.5px; font-weight: 500;
+  letter-spacing: var(--tracking-wide); text-transform: uppercase;
+  color: var(--gold);
+  opacity: 0; transform: translateY(10px);
+  transition: opacity 520ms var(--ease-out), transform 520ms var(--ease-out);
+}
+.jr-caption-line {
+  display: block; margin-top: 12px;
+  font-family: var(--font-display); font-style: italic;
+  font-size: clamp(21px, 2.7vw, 34px); line-height: 1.26;
+  color: var(--cream);
+  text-shadow: 0 2px 26px rgba(0,0,0,.95);
+  opacity: 0; transform: translateY(16px);
+  transition: opacity 640ms var(--ease-out) 80ms, transform 640ms var(--ease-out) 80ms;
+}
+.jr-caption.is-in .jr-caption-label,
+.jr-caption.is-in .jr-caption-line { opacity: 1; transform: none; }
+
+/* ------------------------------------------------------------
+   the call to action, rising in the last stretch of a hall
+   ------------------------------------------------------------ */
+.jr-cta {
+  position: absolute; right: var(--gutter); bottom: clamp(60px, 12vh, 118px);
+  display: flex; align-items: center; gap: 16px;
+  max-width: min(440px, 44vw);
+  padding: 14px 14px 14px 20px;
+  border: 1px solid var(--gold-line); border-radius: var(--r-lg);
+  background: rgba(12, 10, 8, .78);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  box-shadow: var(--shadow-lg);
+  opacity: 0; transform: translateY(18px);
+  pointer-events: none;
+  transition: opacity 520ms var(--ease-out), transform 520ms var(--ease-out);
+  z-index: 3;
+}
+.jr-cta.is-in { opacity: 1; transform: none; pointer-events: auto; }
+.jr-embedded .jr-cta { right: 22px; bottom: 22px; max-width: 60%; }
+.jr-cta-text b { display: block; font-size: 13.5px; color: var(--cream); font-weight: 500; }
+.jr-cta-text span { display: block; margin-top: 3px; font-size: 11.5px; color: var(--muted); line-height: 1.5; }
+.jr-cta .btn { flex: none; }
+
+
+/* ------------------------------------------------------------
+   static / reduced-motion rendering
+   ------------------------------------------------------------ */
+.jr-static .jr-beat { position: absolute; }
+.jr-static .jr-beat:not(:first-child) { display: none; }
+.jr-static .jr-cta { opacity: 1; transform: none; pointer-events: auto; }
+.jr-static .jr-caption .jr-caption-label,
+.jr-static .jr-caption .jr-caption-line { opacity: 1; transform: none; }
+
+
+/* ------------------------------------------------------------
+   small screens: rail collapses, caption and cta stack
+   ------------------------------------------------------------ */
+@media (max-width: 900px) {
+  .jr-rail { display: none; }
+  .jr-hud-r { min-width: 0; }
+  .jr-hud-stats span { display: none; }
+  .jr-progress { width: 90px; }
+  .jr-caption { max-width: calc(100% - 2 * var(--gutter)); bottom: 118px; }
+  .jr-cta {
+    left: var(--gutter); right: var(--gutter); bottom: 22px;
+    max-width: none; flex-wrap: wrap;
+  }
+}
+
+/* ------------------------------------------------------------
+   halls behind the other doors wait until their door is chosen
+   ------------------------------------------------------------ */
+.jr-off { display: none !important; }
+
+.jr-cta-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+.jr-rail-home { margin-bottom: 8px; }
+.jr-rail-home .jr-rail-n { font-size: 13px; }
+
+/* the arrival: the title clears as you walk */
+.jr-hall-arrival .jr-hud-num { font-size: clamp(22px, 3vw, 36px); }
+
+/* ------------------------------------------------------------
+   the reception: a room of doorways around the visitor
+   ------------------------------------------------------------ */
+.jr-stage-reception {
+  --rc-light: 0;
+  background: #070605;
+}
+.rc-room {
+  position: absolute; inset: 0;
+  perspective: 900px; perspective-origin: 50% 46%;
+  overflow: hidden; cursor: grab;
+  touch-action: pan-y;
+  background:
+    radial-gradient(60% 40% at 50% 50%, rgba(214,183,116, calc(.16 * var(--rc-light))), transparent 70%),
+    #070605;
+}
+.rc-room.is-dragging { cursor: grabbing; }
+.rc-world {
+  position: absolute; left: 50%; top: 50%;
+  width: 0; height: 0;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.rc-floor, .rc-ceiling {
+  position: absolute; left: -1400px; top: -1400px; width: 2800px; height: 2800px;
+  transform: rotateX(90deg) translateZ(-330px);
+  background:
+    radial-gradient(circle at 50% 50%, rgba(214,183,116, calc(.30 * var(--rc-light))) 0, rgba(214,183,116,.05) 22%, transparent 55%),
+    repeating-radial-gradient(circle at 50% 50%, rgba(246,241,231,.05) 0 1px, transparent 1px 90px),
+    #0b0908;
+  backface-visibility: hidden;
+}
+.rc-ceiling {
+  transform: rotateX(-90deg) translateZ(-420px);
+  background: radial-gradient(circle at 50% 50%, rgba(214,183,116, calc(.22 * var(--rc-light))), transparent 45%), #050404;
+}
+.rc-lamp {
+  position: absolute; left: -6px; top: -420px; width: 12px; height: 12px;
+  transform: translateZ(0);
+}
+.rc-lamp i {
+  position: absolute; left: 50%; top: 0; width: 2px; height: 120px; margin-left: -1px;
+  background: linear-gradient(180deg, var(--gold), transparent);
+  opacity: calc(.7 * var(--rc-light));
+}
+.rc-lamp i + i {
+  width: 260px; height: 260px; left: 50%; top: 100px; margin-left: -130px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(242,220,172, .75), rgba(214,183,116,.2) 40%, transparent 70%);
+  filter: blur(6px);
+  opacity: var(--rc-light);
+}
+
+/* a doorway */
+.rc-door {
+  position: absolute; left: -170px; top: -250px;
+  width: 340px; height: 500px;
+  padding: 0; border: 0; background: none; color: inherit; font: inherit;
+  transform-style: preserve-3d;
+  cursor: pointer;
+  backface-visibility: hidden;
+}
+.rc-door-frame {
+  position: absolute; inset: 0;
+  border: 10px solid #231c15;
+  border-top-width: 26px;
+  border-radius: 170px 170px 6px 6px / 200px 200px 6px 6px;
+  overflow: hidden;
+  background: #0a0806;
+  box-shadow: 0 30px 80px -20px rgba(0,0,0,.9), inset 0 0 0 2px rgba(214,183,116,.28);
+  transition: box-shadow 500ms var(--ease), transform 500ms var(--ease-out);
+}
+.rc-door-view {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  filter: saturate(.85) brightness(calc(.55 + .5 * var(--rc-light)));
+  transform: scale(1.06);
+  transition: transform 900ms var(--ease-out), filter 500ms var(--ease);
+}
+.rc-door-shade {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(5,4,4,.1), rgba(5,4,4,.7));
+}
+.rc-door-lintel {
+  position: absolute; left: 0; right: 0; top: 100%; margin-top: 16px;
+  text-align: center; pointer-events: none;
+}
+.rc-door-heading {
+  display: block; font-family: var(--font-mono); font-size: 10px; letter-spacing: .28em;
+  color: var(--gold); text-transform: uppercase;
+}
+.rc-door-name {
+  display: block; margin-top: 6px;
+  font-family: var(--font-display); font-weight: 500; font-size: 26px; line-height: 1.05;
+  color: var(--cream); text-shadow: 0 2px 20px rgba(0,0,0,.9);
+}
+.rc-door-meta {
+  display: block; margin-top: 6px; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase;
+  color: rgba(246,241,231,.5);
+}
+.rc-door:hover .rc-door-frame, .rc-door:focus-visible .rc-door-frame,
+.rc-door.is-focused .rc-door-frame {
+  box-shadow: 0 30px 80px -20px rgba(0,0,0,.9), inset 0 0 0 2px var(--gold), 0 0 60px -10px rgba(214,183,116,.5);
+}
+.rc-door.is-focused .rc-door-view { transform: scale(1); filter: saturate(1) brightness(1); }
+.rc-door:focus-visible { outline: none; }
+
+/* the stairs: the way up */
+.rc-stairs .rc-door-frame { border-radius: 6px; border-top-width: 10px; }
+.rc-steps {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 58%;
+  display: flex; flex-direction: column-reverse;
+  z-index: 1; pointer-events: none;
+}
+.rc-steps i {
+  display: block; flex: 1;
+  border-top: 2px solid rgba(214,183,116,.55);
+  background: linear-gradient(180deg, rgba(35,28,21,.75), rgba(10,8,6,.55));
+  box-shadow: 0 -6px 12px -6px rgba(0,0,0,.8);
+}
+.rc-stairs .rc-door-view { object-position: 50% 20%; }
+
+/* the push through the chosen door: a match cut to the hall */
+.rc-push {
+  position: absolute; inset: 0; opacity: 0; pointer-events: none;
+  transform-origin: 50% 50%;
+  z-index: 2;
+}
+.rc-push img { width: 100%; height: 100%; object-fit: cover; }
+.jr-stage-reception.is-walking .rc-room { cursor: default; }
+
+/* the compass, and the list of doors */
+.rc-compass {
+  position: absolute; right: var(--gutter); bottom: clamp(60px, 12vh, 118px);
+  width: 96px; height: 96px;
+  pointer-events: none;
+}
+.rc-compass-ring {
+  position: absolute; inset: 0; border-radius: 50%;
+  border: 1px solid var(--gold-line);
+  background: rgba(12,10,8,.6);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+}
+.rc-compass-ring span {
+  position: absolute; left: 50%; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px;
+  font-family: var(--font-mono); font-size: 9px; line-height: 14px; text-align: center;
+  color: rgba(246,241,231,.5);
+}
+.rc-compass-needle {
+  position: absolute; left: 50%; top: 50%; width: 2px; height: 30px; margin: -30px 0 0 -1px;
+  transform-origin: 50% 100%;
+  background: linear-gradient(180deg, var(--gold), transparent);
+}
+.rc-compass-deg {
+  position: absolute; left: 0; right: 0; top: 100%; margin-top: 8px;
+  text-align: center; font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em; color: var(--gold);
+}
+.rc-doorlist {
+  position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%);
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 6px;
+  max-width: calc(100% - 2 * var(--gutter));
+  z-index: 4;
+}
+.rc-chip {
+  display: inline-flex; align-items: baseline; gap: 8px;
+  padding: 7px 12px;
+  border: 1px solid rgba(246,241,231,.12); border-radius: var(--r-pill);
+  background: rgba(12,10,8,.62);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  color: rgba(246,241,231,.72); font-family: inherit; font-size: 11.5px; cursor: pointer;
+  transition: color var(--t-mid) var(--ease), border-color var(--t-mid) var(--ease), transform var(--t-mid) var(--ease-out);
+}
+.rc-chip span { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .12em; color: rgba(246,241,231,.4); }
+.rc-chip:hover { color: var(--cream); border-color: var(--gold-line); transform: translateY(-2px); }
+.rc-chip:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.rc-chip.is-focused { color: var(--gold); border-color: var(--gold); }
+.rc-chip.is-focused span { color: var(--gold); }
+.jr-stage-reception.is-walking .rc-doorlist,
+.jr-stage-reception.is-walking .rc-compass { opacity: 0; transition: opacity 400ms var(--ease); }
+
+.jr-embedded .rc-door { width: 250px; height: 370px; left: -125px; top: -185px; }
+.jr-embedded .rc-door-name { font-size: 20px; }
+
+@media (max-width: 900px) {
+  .rc-door { width: 250px; height: 380px; left: -125px; top: -190px; }
+  .rc-door-name { font-size: 20px; }
+  .rc-compass { display: none; }
+  .rc-doorlist { bottom: 14px; }
+  .rc-chip { padding: 6px 10px; font-size: 10.5px; }
+  .rc-chip span { display: none; }
+  .jr-stage-reception .jr-caption { bottom: 96px; }
+}

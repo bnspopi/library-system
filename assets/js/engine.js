@@ -88,6 +88,25 @@
     }) || db.patrons.find(function (p) { return U.matches(p.name + ' ' + p.email, q); }) || null;
   }
 
+  Engine.collection = function (key) {
+    return db.collections.find(function (c) { return c.key === key; });
+  };
+  /** Titles and shelf availability for one collection — what the hall
+      sign would say. */
+  Engine.collectionStats = function (key) {
+    var bibs = db.bibs.filter(function (b) { return b.collection === key; });
+    var items = db.items.filter(function (i) {
+      return bibs.some(function (b) { return b.id === i.bibId; });
+    });
+    return {
+      titles: bibs.length,
+      copies: items.length,
+      available: items.filter(function (i) { return i.status === 'available'; }).length,
+      out: items.filter(function (i) { return i.status === 'out'; }).length,
+      bibs: bibs
+    };
+  };
+
   Engine.bib = bib;
   Engine.item = item;
   Engine.patron = patron;
@@ -1411,6 +1430,9 @@
     if (filters.format) {
       results = results.filter(function (r) { return r.bib.format === filters.format; });
     }
+    if (filters.collection) {
+      results = results.filter(function (r) { return r.bib.collection === filters.collection; });
+    }
     if (filters.subject) {
       results = results.filter(function (r) { return r.bib.subjects.indexOf(filters.subject) !== -1; });
     }
@@ -1443,6 +1465,7 @@
         .sort(U.by('n', 'desc'));
     }
     return {
+      collection: tally(results, function (r) { return r.bib.collection; }),
       format:  tally(results, function (r) { return r.bib.format; }),
       subject: tally(results, function (r) { return r.bib.subjects; }).slice(0, 10),
       branch:  tally(results, function (r) {
