@@ -286,6 +286,7 @@
       host.appendChild(section.node);
       ctx.byKey[hall.def.key] = section;
       (section.beats || []).forEach(function (b) { ctx.videos.push(b.video); });
+      (section.videos || []).forEach(function (v) { ctx.videos.push(v); });
     });
 
     /* rail clicks jump to a hall — the triggers must exist first, so this
@@ -486,7 +487,8 @@
         el('img.jr-poster', { src: BASE + b.src + '.jpg', alt: '', loading: 'lazy' }),
         video
       ]);
-      return { def: b, node: node, video: video, ready: false, duration: 8, lastT: -1 };
+      return { def: b, node: node, video: video, ready: false, duration: 8, lastT: -1,
+               drive: LS.FilmDrive ? LS.FilmDrive.of(video) : null };
     });
 
     beats.forEach(function (b) {
@@ -511,6 +513,7 @@
     }
 
     function seek(b, t) {
+      if (b.drive) { b.drive.to(t); return; }
       if (!b.ready) { b.pendingT = t; return; }
       if (Math.abs(t - b.lastT) < 1 / 60) return;
       b.lastT = t;
@@ -590,8 +593,8 @@
                   { 'data-hall': def.key }, stage);
     var title = stage.querySelector('.jr-title');
 
-    /* the room: the film wrapped round the visitor, the things in it clickable,
-       the titles on this hall's shelf floating in front of the wall */
+    /* the room: the film flat and whole, the things in it clickable, and the
+       titles on this hall's shelves waiting inside the picture */
     var api = { node: node, stage: stage, beats: beats, load: load, trigger: null, def: def };
     function goBeat(i) {
       var st = api.trigger;
@@ -621,6 +624,7 @@
         else if (u > 1) o = Math.max(0, 1 - (u - 1) / XFADE);
         b.node.style.opacity = o.toFixed(3);
         if (o > 0) seek(b, Math.max(0, Math.min(1, u)) * (b.duration - 0.04));
+        else if (b.drive) b.drive.stop();
       });
 
       var local = x - cur;
@@ -682,6 +686,12 @@
       var stats = d.route.map(function (k) { return E.collectionStats(k); })
         .reduce(function (a, s) { a.titles += s.titles; a.available += s.available; return a; },
                 { titles: 0, available: 0 });
+      var view = el('video.rc-door-view', {
+        muted: true, playsinline: true, preload: 'none',
+        disablepictureinpicture: true, disableremoteplayback: true,
+        poster: BASE + d.poster + '.jpg', 'aria-hidden': 'true'
+      });
+      view.muted = true;
       var node = el('button.rc-door' + (d.stairs ? '.rc-stairs' : ''), {
         type: 'button', 'data-door': d.key,
         'aria-label': name,
@@ -689,7 +699,7 @@
       }, [
         el('div.rc-door-frame', {}, [
           d.stairs ? el('div.rc-steps', {}, [1, 2, 3, 4, 5, 6, 7].map(function () { return el('i'); })) : null,
-          el('img.rc-door-view', { src: BASE + d.poster + '.jpg', alt: '', loading: 'lazy' }),
+          view,
           el('div.rc-door-shade')
         ]),
         el('div.rc-door-lintel', {}, [
@@ -698,8 +708,33 @@
           el('span.rc-door-meta', { text: stats.titles + ' titles · ' + stats.available + ' on the shelf' })
         ])
       ]);
-      return { def: d, node: node, name: name, poster: d.poster };
+      var door = { def: d, node: node, name: name, poster: d.poster, video: view, duration: 8, loaded: false,
+                   drive: LS.FilmDrive ? LS.FilmDrive.of(view) : null };
+      view.addEventListener('loadedmetadata', function () {
+        var dur = view.duration; door.duration = (isFinite(dur) && dur > 0.5) ? dur : 8;
+      });
+      return door;
     });
+    /* the doorways come alive as you look round and walk: every clip is
+       moved by the drag and the scroll, none of them plays on its own */
+    function loadDoors() {
+      doors.forEach(function (d) {
+        if (d.loaded) return;
+        d.loaded = true;
+        d.video.preload = 'auto';
+        d.video.src = BASE + d.poster + '-m.mp4';
+        d.video.load();
+      });
+    }
+    function driveDoors() {
+      var base = 0.06 + 0.7 * (view.p || 0) + (view.spin || 0);
+      doors.forEach(function (d) {
+        if (!d.drive || !d.loaded) return;
+        var diff = Math.abs(((norm(view.yaw) - d.def.yaw + 540) % 360) - 180);
+        if (diff > 80) { d.drive.stop(); return; }       // only the doorways you can see move
+        d.drive.to(Math.min(1, base) * (d.duration - 0.06));
+      });
+    }
 
     var world = el('div.rc-world', {}, [
       el('div.rc-floor'), el('div.rc-ceiling'),
@@ -754,7 +789,7 @@
     var node = el('section.jr-hall.jr-hall-reception', { 'data-hall': 'reception' }, stage);
 
     /* --- looking around ----------------------------------------- */
-    var view = { yaw: 0, dolly: 0, focused: null, locked: false };
+    var view = { yaw: 0, dolly: 0, focused: null, locked: false, p: 0, spin: 0 };
     var yawTween = null;
 
     function applyView() {
@@ -812,8 +847,11 @@
       if (!drag) return;
       var dx = e.clientX - drag.x;
       if (Math.abs(dx) > 4) drag.moved = true;
-      view.yaw = drag.yaw - dx * 0.32;                  // drag right = look right
+      var yaw = drag.yaw - dx * 0.32;                   // drag right = look right
+      view.spin = Math.min(0.24, (view.spin || 0) + Math.abs(yaw - view.yaw) / 900);   // turning your head moves the doorways on
+      view.yaw = yaw;
       applyView();
+      driveDoors();
     });
     function endDrag(e) {
       if (!drag) return;
@@ -854,6 +892,7 @@
     var ARRIVE = 0.22;         // the room brightens and settles
     var WALK = 0.60;           // from here the visitor walks through the door
     function render(p) {
+      view.p = p;
       progress.style.transform = 'scaleX(' + p.toFixed(4) + ')';
       var settle = Math.min(1, p / ARRIVE);
       stage.style.setProperty('--rc-light', settle.toFixed(3));
@@ -864,6 +903,7 @@
       if (walk > 0 && !view.focused) focus(nearest(view.yaw).def.key, true);
       view.dolly = walk * (ROOM_R - 210);
       applyView();
+      driveDoors();
 
       /* the last stretch is a match cut: the door's poster grows to fill the
          frame, and the next stage opens on that same frame */
@@ -878,8 +918,8 @@
 
     return {
       node: node, stage: stage, beats: [], render: render, trigger: null, def: hall.def,
-      focus: focus, load: null,
-      onToggle: function (active) { if (active) stage.focus({ preventScroll: true }); }
+      focus: focus, load: loadDoors, videos: doors.map(function (d) { return d.video; }),
+      onToggle: function (active) { if (active) { stage.focus({ preventScroll: true }); driveDoors(); } else doors.forEach(function (d) { if (d.drive) d.drive.stop(); }); }
     };
   }
 

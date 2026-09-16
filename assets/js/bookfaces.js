@@ -8,7 +8,7 @@
 
    LS.BookFaces.collection(col)   eight pages for a hall's book
    LS.BookFaces.aurelia()         eight pages for the great book
-   LS.BookFaces.bib(bib, col)     two pages for one title
+   LS.BookFaces.bib(bib, col)     eight pages for one title: its story and its people
    ============================================================ */
 (function (global) {
   'use strict';
@@ -357,53 +357,165 @@
   }
 
   /* ============================================================
-     one title, taken down in a hall: the record, and what stands
-     up out of it
+     one title, taken down off its shelf: eight pages. The record,
+     then the story in three parts, the people in it standing up out
+     of the pages, its places and things, and the shelf it lives on.
      ============================================================ */
-  function bib(b, col, filmSlug) {
-    var hd = 'AURELIA · ' + col.hall;
-    if (!filmSlug) { var bt = beatsOf(col.key); filmSlug = bt[0] ? bt[0].src : null; }
-    return [
-      { draw: function (ctx) {
-        var av = E.availability(b.id);
-        var items = E.itemsOf(b.id);
-        P.paper(ctx, W, H, { side: 'L', head: hd });
-        var y = P.text(ctx, b.format + ' · ' + b.dewey, M, 250, { font: F.ui, size: 16, color: K.gold, spacing: '.22em', upper: true, weight: 500 });
-        y = P.text(ctx, b.title, M, y + 78, { font: F.display, size: 64, color: K.ink, weight: 500, maxW: W - 2 * M, lh: 66 });
-        y = P.text(ctx, b.author, M, y + 14, { font: F.ui, size: 24, color: K.ink, maxW: W - 2 * M });
-        y = P.text(ctx, b.publisher + ', ' + b.year, M, y + 8, { font: F.ui, size: 18, color: K.soft, maxW: W - 2 * M });
-        y = P.text(ctx, b.summary, M, y + 48, { font: F.display, size: 29, italic: true, color: K.ink, maxW: W - 2 * M, lh: 37 });
-        y += 30;
-        var label = av.available ? av.available + ' of ' + av.total + ' on the shelf' : 'all ' + av.total + ' on loan';
-        var wpill = ctx.measureText(label).width;
-        P.pill(ctx, label, M, y + 22, av.available ? 'ok' : 'warn');
-        if (av.queue) P.pill(ctx, av.queue + ' waiting', M + wpill + 60, y + 22, 'gold');
-        var shelves = unique(items.map(function (i) { return E.branch(i.branch).name + ' · ' + i.shelf; }));
-        y = P.text(ctx, shelves.join('\n'), M, y + 72, { font: F.ui, size: 17, color: K.soft, maxW: W - 2 * M, lh: 24 });
-        var hot = [];
-        hot.push(hotRect(P.button(ctx, av.available ? 'Reserve this copy' : 'Place a hold', M, y + 40, W - 2 * M, true), { type: 'reserve', bib: b }));
-        P.text(ctx, 'This writes a real hold into the demo database — it is on the pull list in the staff client a moment later.',
-          M, y + 140, { font: F.ui, size: 16, color: K.soft, maxW: W - 2 * M, lh: 22 });
-        hot.push(hotRect(P.button(ctx, 'Put it back', M, y + 200, W - 2 * M, false), { type: 'close' }));
-        return hot;
-      } },
-      { film: filmSlug, filmRect: { x: 0.10, y: 0.09, w: 0.80 }, pop: true, draw: function (ctx) {
-        P.paper(ctx, W, H, { side: 'R', head: hd });
-        plinth(ctx, 600);
-        P.text(ctx, col.n + ' · ' + col.name, M, 900, { font: F.mono, size: 22, color: K.gold, spacing: '.24em' });
-        var y = P.text(ctx, 'Open it, and the hall stands up.', M, 980, { font: F.display, size: 58, color: K.ink, weight: 500, maxW: W - 2 * M, lh: 60 });
-        P.text(ctx, 'The film moves when you scroll. Click what is in it.', M, y + 8, { font: F.ui, size: 18, color: K.gold, maxW: W - 2 * M });
-        var x = M; y += 50;
-        (b.subjects || []).slice(0, 8).forEach(function (s) {
-          ctx.font = '500 18px ' + F.ui;
-          var w = ctx.measureText(s).width + 30;
-          if (x + w > W - M) { x = M; y += 46; }
-          P.pill(ctx, s, x, y, 'gold');
-          x += w + 12;
-        });
-        return [];
-      } }
-    ];
+  function para(ctx, str, y, size) {
+    size = size || 27;
+    return P.text(ctx, str, M, y, { font: F.display, size: size, color: K.ink, maxW: W - 2 * M, lh: Math.round(size * 1.34) });
+  }
+  function heading(ctx, small, big, y) {
+    y = P.text(ctx, small, M, y, { font: F.mono, size: 20, color: K.gold, spacing: '.24em', upper: true });
+    return P.text(ctx, big, M, y + 34, { font: F.display, size: 56, color: K.ink, weight: 500, maxW: W - 2 * M, lh: 58 });
+  }
+  function pills(ctx, list, y) {
+    var x = M;
+    list.forEach(function (s) {
+      ctx.font = '500 18px ' + F.ui;
+      var w = ctx.measureText(s).width + 30;
+      if (x + w > W - M) { x = M; y += 46; }
+      P.pill(ctx, s, x, y, 'gold');
+      x += w + 12;
+    });
+    return y + 46;
+  }
+  function cardFor(ch, x, y, w) {
+    return { name: ch.name, role: ch.role, note: ch.note, image: ch.image, x: x, y: y, w: w };
+  }
+
+  function bib(b, col) {
+    var hd = 'AURELIA · ' + (col ? col.hall : 'The stacks');
+    var st = LS.Stories ? LS.Stories.of(b) : { story: [b.summary], characters: [], world: b.subjects || [], why: '' };
+    var story = st.story || [], chars = st.characters || [], world = st.world || [];
+    var faces = [];
+
+    /* 0 · inside the front cover: the record */
+    faces.push({ draw: function (ctx) {
+      var av = E.availability(b.id);
+      var items = E.itemsOf(b.id);
+      P.paper(ctx, W, H, { side: 'L', head: hd });
+      var y = P.text(ctx, b.format + ' · ' + b.dewey, M, 250, { font: F.ui, size: 16, color: K.gold, spacing: '.22em', upper: true, weight: 500 });
+      y = P.text(ctx, b.title, M, y + 78, { font: F.display, size: 64, color: K.ink, weight: 500, maxW: W - 2 * M, lh: 66 });
+      y = P.text(ctx, b.author, M, y + 14, { font: F.ui, size: 24, color: K.ink, maxW: W - 2 * M });
+      y = P.text(ctx, b.publisher + ', ' + b.year, M, y + 8, { font: F.ui, size: 18, color: K.soft, maxW: W - 2 * M });
+      y = P.text(ctx, b.summary, M, y + 48, { font: F.display, size: 29, italic: true, color: K.ink, maxW: W - 2 * M, lh: 37 });
+      y += 30;
+      var label = av.available ? av.available + ' of ' + av.total + ' on the shelf' : 'all ' + av.total + ' on loan';
+      var wpill = ctx.measureText(label).width;
+      P.pill(ctx, label, M, y + 22, av.available ? 'ok' : 'warn');
+      if (av.queue) P.pill(ctx, av.queue + ' waiting', M + wpill + 60, y + 22, 'gold');
+      var shelves = unique(items.map(function (i) { return E.branch(i.branch).name + ' · ' + i.shelf; }));
+      y = P.text(ctx, shelves.join('\n'), M, y + 72, { font: F.ui, size: 17, color: K.soft, maxW: W - 2 * M, lh: 24 });
+      var hot = [];
+      hot.push(hotRect(P.button(ctx, av.available ? 'Reserve this copy' : 'Place a hold', M, y + 40, W - 2 * M, true), { type: 'reserve', bib: b }));
+      P.text(ctx, 'Turn the pages: the story, and the people in it, are inside.',
+        M, y + 140, { font: F.ui, size: 16, color: K.soft, maxW: W - 2 * M, lh: 22 });
+      hot.push(hotRect(P.button(ctx, 'Put it back', M, y + 200, W - 2 * M, false), { type: 'close' }));
+      return hot;
+    } });
+
+    /* 1 · the story begins, and its first figure stands up */
+    faces.push({ cards: chars[0] ? [cardFor(chars[0], 0.57, 0.085, 0.35)] : [], draw: function (ctx) {
+      P.paper(ctx, W, H, { side: 'R', head: hd });
+      var y = heading(ctx, 'I · The story', ellipsize(ctx, b.title, 440), 250);
+      if (chars[0]) plinth(ctx, 690);
+      y = para(ctx, story[0] || b.summary || '', Math.max(y + 60, 780));
+      if (chars[0]) P.text(ctx, chars[0].name + ' · ' + chars[0].role, M, y + 30, { font: F.ui, size: 16, color: K.gold, spacing: '.18em', upper: true, maxW: W - 2 * M });
+      return [];
+    } });
+
+    /* 2 · the story goes on */
+    faces.push({ draw: function (ctx) {
+      P.paper(ctx, W, H, { side: 'L', head: hd });
+      var y = heading(ctx, 'II · The story, continued', 'What happens next', 250);
+      y = para(ctx, story[1] || '', y + 60);
+      if (story[2]) y = para(ctx, story[2], y + 34);
+      if (story[3]) y = para(ctx, story[3], y + 34);
+      P.rule(ctx, M, y + 50, 120);
+      P.text(ctx, 'Turn the page: the people in it.', M, y + 100, { font: F.display, size: 24, italic: true, color: K.soft });
+      return [];
+    } });
+
+    /* 3 · the people in it, two of them standing up */
+    var pair = chars.slice(1, 3);
+    faces.push({ cards: pair.map(function (c, i) { return cardFor(c, i === 0 ? 0.08 : 0.54, 0.10, 0.38); }), draw: function (ctx) {
+      P.paper(ctx, W, H, { side: 'R', head: hd });
+      heading(ctx, 'III · The people in it', pair.length ? 'Who you meet' : 'Who made it', 250);
+      if (pair.length) { plinth(ctx, 720); }
+      var y = 820;
+      chars.forEach(function (c) {
+        y = P.text(ctx, c.name, M, y, { font: F.display, size: 34, color: K.ink, weight: 500, maxW: W - 2 * M, lh: 36 });
+        y = P.text(ctx, c.role, M, y + 2, { font: F.ui, size: 15, color: K.gold, spacing: '.18em', upper: true, maxW: W - 2 * M });
+        y = P.text(ctx, c.note, M, y + 6, { font: F.display, size: 23, italic: true, color: K.soft, maxW: W - 2 * M, lh: 29 }) + 26;
+      });
+      return [];
+    } });
+
+    /* 4 · its places and things */
+    faces.push({ draw: function (ctx) {
+      P.paper(ctx, W, H, { side: 'L', head: hd });
+      var y = heading(ctx, 'IV · Places and things', 'Where it happens', 250);
+      y += 50;
+      world.forEach(function (w, i) {
+        P.text(ctx, String(i + 1).padStart(2, '0'), M, y + 4, { font: F.mono, size: 18, color: K.gold });
+        y = P.text(ctx, w, M + 60, y, { font: F.display, size: 40, color: K.ink, maxW: W - 2 * M - 60, lh: 44 }) + 22;
+      });
+      if (st.why) { P.rule(ctx, M, y + 30, 120); P.text(ctx, st.why, M, y + 84, { font: F.display, size: 27, italic: true, color: K.ink, maxW: W - 2 * M, lh: 35 }); }
+      return [];
+    } });
+
+    /* 5 · the last figure, or the book's own chapters */
+    var last = chars[3] || null;
+    faces.push({ cards: last ? [cardFor(last, 0.57, 0.085, 0.35)] : [], draw: function (ctx) {
+      P.paper(ctx, W, H, { side: 'R', head: hd });
+      var y = heading(ctx, 'V · In brief', last ? last.name : 'The whole of it', 250);
+      if (last) { plinth(ctx, 690); y = 780; } else y += 60;
+      if (last) y = P.text(ctx, last.note, M, y, { font: F.display, size: 27, italic: true, color: K.ink, maxW: W - 2 * M, lh: 36 }) + 40;
+      story.forEach(function (s, i) {
+        var cut = s.search(/[.!?]\s/); var line = ellipsize(ctx, cut > 0 ? s.slice(0, cut + 1) : s, W - 2 * M - 60);
+        P.text(ctx, String(i + 1), M, y + 2, { font: F.mono, size: 18, color: K.gold });
+        y = P.text(ctx, line, M + 50, y, { font: F.display, size: 24, color: K.ink, maxW: W - 2 * M - 50, lh: 30 }) + 18;
+      });
+      y = pills(ctx, (b.subjects || []).slice(0, 6), y + 30);
+      return [];
+    } });
+
+    /* 6 · on the shelf: where the copies are, and the hold */
+    faces.push({ draw: function (ctx) {
+      var av = E.availability(b.id), items = E.itemsOf(b.id);
+      P.paper(ctx, W, H, { side: 'L', head: hd });
+      var y = heading(ctx, 'VI · On the shelf', 'Where the copies are', 250);
+      y += 50;
+      var byBranch = {};
+      items.forEach(function (i) { var k = E.branch(i.branch).name; byBranch[k] = byBranch[k] || { n: 0, out: 0, shelf: i.shelf }; byBranch[k].n++; if (i.status !== 'available') byBranch[k].out++; });
+      Object.keys(byBranch).forEach(function (k) {
+        var r = byBranch[k];
+        y = P.text(ctx, k, M, y, { font: F.display, size: 34, color: K.ink, weight: 500, maxW: W - 2 * M });
+        y = P.text(ctx, r.shelf + ' · ' + (r.n - r.out) + ' of ' + r.n + ' in', M, y + 2, { font: F.ui, size: 16, color: K.soft, spacing: '.1em', upper: true }) + 26;
+      });
+      y = statRow(ctx, y + 40, [[av.available, 'on the shelf'], [av.total - av.available, 'on loan'], [av.queue || 0, 'waiting']], 60);
+      var hot = [];
+      hot.push(hotRect(P.button(ctx, av.available ? 'Reserve this copy' : 'Place a hold', M, y + 60, W - 2 * M, true), { type: 'reserve', bib: b }));
+      hot.push(hotRect(P.button(ctx, 'Put it back', M, y + 150, W - 2 * M, false), { type: 'close' }));
+      return hot;
+    } });
+
+    /* 7 · inside the back cover: the colophon, and the next title along */
+    faces.push({ draw: function (ctx) {
+      P.paper(ctx, W, H, { side: 'R', head: hd });
+      ctx.strokeStyle = 'rgba(138,106,42,.5)'; ctx.lineWidth = 2; ctx.strokeRect(150, 300, W - 300, 520);
+      P.text(ctx, 'AURELIA PUBLIC & RESEARCH LIBRARY', W / 2, 380, { font: F.ui, size: 16, color: K.gold, align: 'center', spacing: '.3em', weight: 500 });
+      var y = P.text(ctx, b.title, W / 2, 470, { font: F.display, size: 44, color: K.ink, align: 'center', weight: 500, maxW: W - 380, lh: 46 });
+      y = P.text(ctx, b.author, W / 2, y + 14, { font: F.ui, size: 20, color: K.soft, align: 'center', maxW: W - 380 });
+      P.text(ctx, (col ? col.n + ' · ' + col.name : '') + ' · ' + b.dewey, W / 2, y + 40, { font: F.mono, size: 16, color: K.gold, align: 'center', spacing: '.2em' });
+      var hot = [];
+      hot.push(hotRect(P.button(ctx, 'Next title on this shelf →', M, 940, W - 2 * M, true), { type: 'next', bib: b }));
+      hot.push(hotRect(P.button(ctx, 'Put it back', M, 1030, W - 2 * M, false), { type: 'close' }));
+      return hot;
+    } });
+
+    return faces;
   }
 
   LS.BookFaces = { collection: collection, aurelia: aurelia, bib: bib, MODULES: MODULES, STANDARDS: STANDARDS };

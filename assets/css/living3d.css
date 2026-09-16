@@ -214,13 +214,50 @@ body.is-touring .tour-skip { opacity: 1; pointer-events: auto; transform: none; 
 }
 
 /* ------------------------------------------------------------
-   the room: the clip wrapped round you, and what you can click in it
+   the room: the film flat and whole, and what you can click in it
    ------------------------------------------------------------ */
-.jr-stage .jr-film { transition: opacity 500ms var(--ease); }
-.jr-stage.is-room .jr-film { opacity: 0; }
-.jr-stage.is-room .jr-scrim { opacity: .75; }
-.jr-stage.is-room .l3-canvas { cursor: grab; }
-.jr-stage.is-room.is-dragging .l3-canvas { cursor: grabbing; }
+.jr-stage .jr-film { transition: opacity 500ms var(--ease); transform-origin: 50% 50%; will-change: transform; }
+.jr-stage.is-room .jr-scrim { opacity: .82; }
+.jr-stage.is-room { cursor: grab; touch-action: pan-y; }
+.jr-stage.is-room.is-dragging { cursor: grabbing; }
+.jr-stage.is-room.is-reading { touch-action: none; }
+.jr-stage .jr-beat > video, .jr-stage .jr-beat > img { -webkit-user-drag: none; user-select: none; }
+.jr-spots {
+  position: absolute; inset: 0; z-index: 3;
+  transform-origin: 50% 50%; will-change: transform;
+  pointer-events: none;
+}
+.jr-spot {
+  position: absolute; margin: 0; padding: 0; border: 0; background: none; color: inherit; font: inherit;
+  pointer-events: auto; cursor: pointer;
+  transition: opacity 300ms var(--ease);
+}
+.jr-spot.is-off { opacity: 0; pointer-events: none; }
+.jr-spot > i {
+  position: absolute; left: 50%; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px;
+  border: 1.5px solid var(--gold); border-radius: 50%;
+  box-shadow: 0 0 0 4px rgba(214,183,116,.14), 0 0 22px rgba(214,183,116,.5);
+  background: radial-gradient(circle, rgba(242,220,172,.95) 0 3px, transparent 3.5px);
+  animation: spotPulse 2.6s ease-in-out infinite;
+  transition: transform 280ms var(--ease-out), box-shadow 280ms var(--ease);
+}
+.jr-spot-book > i {
+  width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 3px;
+  background: linear-gradient(90deg, transparent 0 5px, rgba(242,220,172,.9) 5px 7px, transparent 7px 11px, rgba(242,220,172,.9) 11px 13px, transparent 13px);
+}
+.jr-spot > span {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, 18px);
+  font-size: 10px; letter-spacing: .14em; text-transform: uppercase; white-space: nowrap;
+  color: var(--gold); text-shadow: 0 1px 12px rgba(0,0,0,.9);
+  opacity: 0; transition: opacity 240ms var(--ease);
+}
+.jr-spot:hover > i, .jr-spot.is-hover > i, .jr-spot:focus-visible > i { transform: scale(1.6); animation: none; box-shadow: 0 0 0 6px rgba(214,183,116,.18), 0 0 30px rgba(214,183,116,.7); }
+.jr-spot:focus-visible > span { opacity: 1; }
+.jr-spot:focus-visible { outline: none; }
+@keyframes spotPulse { 0%, 100% { transform: scale(1); opacity: .75; } 50% { transform: scale(1.25); opacity: 1; } }
+.jr-stage.is-reading .jr-spots { opacity: 0; pointer-events: none; }
+.jr-stage.is-reading .jr-film { transform: none !important; }
+@media (prefers-reduced-motion: reduce) { .jr-spot > i { animation: none; } }
 .l3-tag {
   position: absolute; left: 0; top: 0;
   transform: translate(-50%, -150%);

@@ -391,6 +391,7 @@
     this.faces = spec.faces || null;
     this.built = false;
     this.films = [];
+    this.cards = [];
     this.timeline = 0;
     this.home = null;
   }
@@ -456,6 +457,7 @@
       var fi = k < N ? 1 + 2 * k : faces.length - 1;
       var host = k < N ? this.sheets[k].group : this.blockTop;
       if (faces[fi].film) this.films.push(buildFilm(this, faces[fi].film, host, k, faces[fi].filmRect, faces[fi].pop));
+      if (faces[fi].cards) for (var ci = 0; ci < faces[fi].cards.length; ci++) this.cards.push(buildCard(this, faces[fi].cards[ci], host, k));
     }
     this.setTimeline(this.timeline);
   };
@@ -587,8 +589,8 @@
       film.ready = true;
       film.tex = videoTexture(video);
       mat.map = film.tex; mat.needsUpdate = true;
-      if (film.pendingT !== undefined) seekFilm(film, film.pendingT);
     });
+    film.drive = LS.FilmDrive ? LS.FilmDrive.of(video) : null;
     film.load = function () {
       if (film.loaded) return;
       film.loaded = true;
@@ -599,10 +601,73 @@
     return film;
   }
   function seekFilm(film, t) {
-    if (!film.ready) { film.pendingT = t; return; }
+    if (film.drive) { film.drive.to(t); return; }
     if (Math.abs(t - film.lastT) < 1 / 60) return;
     film.lastT = t;
     try { film.video.currentTime = t; } catch (e) {}
+  }
+
+  /* --- a character card: one of the people (or things) of the story,
+     standing up out of the page like a pop-up. Drawn on paper, with the
+     figure's picture on it when the book has one. */
+  var CARD_W = 512, CARD_H = 704;
+  function drawCard(ctx, cd, img) {
+    var W = CARD_W, H = CARD_H;
+    ctx.fillStyle = PAPER; ctx.fillRect(0, 0, W, H);
+    var g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, 'rgba(120,90,40,.06)'); g.addColorStop(1, 'rgba(120,90,40,.18)');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    var picH = Math.round(H * 0.56);
+    if (img && (img.naturalWidth || img.videoWidth)) {
+      ctx.save(); ctx.beginPath(); ctx.rect(26, 26, W - 52, picH); ctx.clip();
+      pages.image(ctx, img, 26, 26, W - 52, picH);
+      ctx.restore();
+    } else {
+      /* no picture yet: a monogram on a lit ground */
+      var rg = ctx.createRadialGradient(W / 2, 26 + picH * 0.55, 20, W / 2, 26 + picH * 0.55, picH * 0.8);
+      rg.addColorStop(0, '#f2e4c4'); rg.addColorStop(1, '#cdb27c');
+      ctx.fillStyle = rg; ctx.fillRect(26, 26, W - 52, picH);
+      ctx.strokeStyle = 'rgba(138,106,42,.45)'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.ellipse(W / 2, 26 + picH * 0.55, 150, 150, 0, 0, Math.PI * 2); ctx.stroke();
+      pages.text(ctx, String(cd.name || '?').trim().charAt(0).toUpperCase(), W / 2, 26 + picH * 0.55 + 70,
+        { font: FONT_D, size: 210, color: '#6a4d19', align: 'center', italic: true });
+    }
+    ctx.strokeStyle = 'rgba(138,106,42,.75)'; ctx.lineWidth = 3; ctx.strokeRect(26, 26, W - 52, picH);
+    ctx.strokeStyle = 'rgba(138,106,42,.6)'; ctx.lineWidth = 2; ctx.strokeRect(10, 10, W - 20, H - 20);
+    var y = 26 + picH + 54;
+    y = pages.text(ctx, cd.role || '', W / 2, y, { font: FONT_M, size: 15, color: GOLD_INK, align: 'center', spacing: '.22em', upper: true, maxW: W - 80 });
+    y = pages.text(ctx, cd.name || '', W / 2, y + 40, { font: FONT_D, size: 40, color: INK, align: 'center', weight: 500, maxW: W - 70, lh: 42 });
+    pages.text(ctx, cd.note || '', W / 2, y + 22, { font: FONT_D, size: 20, italic: true, color: INK_SOFT, align: 'center', maxW: W - 80, lh: 26 });
+  }
+  function buildCard(book, cd, host, pageIndex) {
+    var pw = book.pw, ph = book.ph;
+    var cw = (cd.w || 0.34) * pw, ch = cw * CARD_H / CARD_W;
+    var c = document.createElement('canvas');
+    c.width = CARD_W; c.height = CARD_H;
+    var ctx = c.getContext('2d');
+    drawCard(ctx, cd, null);
+    var tex = canvasTexture(c);
+    var mat = new T.MeshStandardMaterial({ map: tex, roughness: 0.88, side: T.DoubleSide });
+    var hinge = new T.Group();
+    hinge.position.set((cd.x || 0.1) * pw + cw / 2, ph / 2 - (cd.y || 0.2) * ph - ch, 0.0035);
+    var mesh = new T.Mesh(new T.PlaneGeometry(cw, ch), mat);
+    mesh.position.set(0, ch / 2, 0);
+    mesh.castShadow = true;
+    mesh.userData = { book: book, card: cd };
+    hinge.add(mesh);
+    host.add(hinge);
+    book.hit.push(mesh);
+    var card = { def: cd, hinge: hinge, mesh: mesh, page: pageIndex, canvas: c };
+    if (cd.image) loadImage(cd.image, function (img) {
+      if (!img) return;
+      drawCard(ctx, cd, img); tex.needsUpdate = true;
+    });
+    return card;
+  }
+  function riseAt(a, j, N) {
+    var rise = smooth((a - (j + 0.42)) / 0.3);
+    if (j !== N) rise *= (1 - smooth((a - (j + 1)) / 0.15));
+    return rise;
   }
 
   /* --- the timeline: a ∈ [0, sheets + 1] ---------------------------
@@ -625,14 +690,17 @@
       var j = f.page;
       var vis = a >= j + 0.42 && (j === N || a <= j + 1.0);
       f.hinge.visible = vis;
-      if (!vis) return;
+      if (!vis) { if (f.drive) f.drive.stop(); return; }
       var lp = clamp((a - (j + 0.45)) / 0.55, 0, 1);
       seekFilm(f, lp * (f.duration - 0.04));
-      if (f.pop) {
-        var rise = smooth((a - (j + 0.42)) / 0.3);
-        if (j !== N) rise *= (1 - smooth((a - (j + 1)) / 0.15));
-        f.hinge.rotation.x = rise * (Math.PI / 2 - 0.36);
-      }
+      if (f.pop) f.hinge.rotation.x = riseAt(a, j, N) * (Math.PI / 2 - 0.36);
+    });
+    this.cards.forEach(function (c) {
+      var j = c.page;
+      var vis = a >= j + 0.42 && (j === N || a <= j + 1.0);
+      c.hinge.visible = vis;
+      if (!vis) return;
+      c.hinge.rotation.x = riseAt(a, j, N) * (Math.PI / 2 - 0.30);
     });
   };
 
@@ -667,7 +735,7 @@
         if (x.map) x.map.dispose(); x.dispose();
       });
     });
-    this.films.forEach(function (f) { try { f.video.pause(); f.video.removeAttribute('src'); f.video.load(); } catch (e) {} });
+    this.films.forEach(function (f) { try { if (f.drive) f.drive.destroy(); f.video.pause(); f.video.removeAttribute('src'); f.video.load(); } catch (e) {} });
   };
 
   /** the hotspot (if any) a ray hits in one of the films on this book's pages */
