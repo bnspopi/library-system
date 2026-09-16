@@ -20,6 +20,7 @@ export type MontageProps = {
 const Plate: React.FC<{ shot: Shot; start: number; dur: number; fade: number }> =
 ({ shot, start, dur, fade }) => {
   const frame = useCurrentFrame();
+  const k = useVideoConfig().width / 1920;   // the design is drawn at 1920 and scales
   const t = frame - start;
   if (t < -fade || t > dur) return null;
   const opacity = Math.min(
@@ -37,22 +38,22 @@ const Plate: React.FC<{ shot: Shot; start: number; dur: number; fade: number }> 
   );
   const isPoster = shot.fit === "plate";
   const caption = (
-    <div style={{ opacity: cap, transform: `translateY(${interpolate(cap, [0, 1], [26, 0])}px)` }}>
-      <div style={{ display: "flex", alignItems: "baseline", gap: 18 }}>
-        <span style={{ fontFamily: theme.fonts.mono, fontSize: 15, letterSpacing: "0.3em",
+    <div style={{ opacity: cap, transform: `translateY(${interpolate(cap, [0, 1], [26 * k, 0])}px)` }}>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 18 * k }}>
+        <span style={{ fontFamily: theme.fonts.mono, fontSize: 15 * k, letterSpacing: "0.3em",
           color: theme.colors.primary }}>{String(shot.n).padStart(2, "0")}</span>
-        <span style={{ width: 54, height: 1, background: theme.colors.primary, opacity: 0.6,
-          transform: "translateY(-6px)" }} />
-        <span style={{ fontFamily: theme.fonts.mono, fontSize: 13, letterSpacing: "0.26em",
+        <span style={{ width: 54 * k, height: Math.max(1, k), background: theme.colors.primary, opacity: 0.6,
+          transform: `translateY(${-6 * k}px)` }} />
+        <span style={{ fontFamily: theme.fonts.mono, fontSize: 13 * k, letterSpacing: "0.26em",
           textTransform: "uppercase", color: theme.colors.textDim }}>plate {shot.case}</span>
       </div>
-      <div style={{ fontFamily: theme.fonts.display, fontSize: 62, lineHeight: 1.04, fontWeight: 500,
-        color: theme.colors.text, marginTop: 12, textShadow: "0 4px 24px rgba(0,0,0,0.7)" }}>{shot.title}</div>
-      <div style={{ fontFamily: theme.fonts.display, fontStyle: "italic", fontSize: 25, lineHeight: 1.3,
-        color: theme.colors.accent, marginTop: 10, maxWidth: isPoster ? 620 : 940,
-        textShadow: "0 3px 18px rgba(0,0,0,0.75)" }}>{shot.line}</div>
-      <div style={{ fontFamily: theme.fonts.mono, fontSize: 13, letterSpacing: "0.2em",
-        color: theme.colors.textDim, marginTop: 16 }}>{shot.source}</div>
+      <div style={{ fontFamily: theme.fonts.display, fontSize: 62 * k, lineHeight: 1.04, fontWeight: 500,
+        color: theme.colors.text, marginTop: 12 * k, textShadow: `0 ${4 * k}px ${24 * k}px rgba(0,0,0,0.7)` }}>{shot.title}</div>
+      <div style={{ fontFamily: theme.fonts.display, fontStyle: "italic", fontSize: 25 * k, lineHeight: 1.3,
+        color: theme.colors.accent, marginTop: 10 * k, maxWidth: (isPoster ? 620 : 940) * k,
+        textShadow: `0 ${3 * k}px ${18 * k}px rgba(0,0,0,0.75)` }}>{shot.line}</div>
+      <div style={{ fontFamily: theme.fonts.mono, fontSize: 13 * k, letterSpacing: "0.2em",
+        color: theme.colors.textDim, marginTop: 16 * k }}>{shot.source}</div>
     </div>
   );
 
@@ -61,14 +62,14 @@ const Plate: React.FC<{ shot: Shot; start: number; dur: number; fade: number }> 
        the caption stands beside it instead of over it */
     return (
       <AbsoluteFill style={{ opacity, background: theme.colors.bg }}>
-        <AbsoluteFill style={{ flexDirection: "row", alignItems: "center", padding: "0 92px", gap: 64 }}>
+        <AbsoluteFill style={{ flexDirection: "row", alignItems: "center", padding: `0 ${92 * k}px`, gap: 64 * k }}>
           <div style={{ flex: "1 1 0", minWidth: 0 }}>{caption}</div>
           {/* a poster only breathes: a big zoom would push it past the margin */}
-          <div style={{ height: 686, display: "flex", alignItems: "center", flex: "0 0 auto",
-            transform: `scale(${shot.move === "out" ? 1.05 - p * 0.05 : 1 + p * 0.05}) translateY(${(p - 0.5) * 16}px)` }}>
+          <div style={{ height: 686 * k, display: "flex", alignItems: "center", flex: "0 0 auto",
+            transform: `scale(${shot.move === "out" ? 1.05 - p * 0.05 : 1 + p * 0.05}) translateY(${(p - 0.5) * 16 * k}px)` }}>
             <Img src={staticFile(shot.file)} style={{ height: "100%", width: "auto", objectFit: "contain",
-              border: `1px solid ${theme.colors.primary}55`,
-              boxShadow: "0 50px 90px -24px rgba(0,0,0,0.85)",
+              border: `${Math.max(1, k)}px solid ${theme.colors.primary}55`,
+              boxShadow: `0 ${50 * k}px ${90 * k}px ${-24 * k}px rgba(0,0,0,0.85)`,
               filter: "saturate(1.04) contrast(1.03)" }} />
           </div>
         </AbsoluteFill>
@@ -81,7 +82,7 @@ const Plate: React.FC<{ shot: Shot; start: number; dur: number; fade: number }> 
       <AbsoluteFill style={{ overflow: "hidden", background: theme.colors.bg }}>
         <Img src={staticFile(shot.file)} style={{ width: "100%", height: "100%", objectFit: "cover",
           objectPosition: `50% ${(shot.focusY ?? 0.5) * 100}%`,
-          transform: `scale(${scale}) translateX(${pan}px)`, filter: "saturate(1.04) contrast(1.04)" }} />
+          transform: `scale(${scale}) translateX(${pan * k}px)`, filter: "saturate(1.04) contrast(1.04)" }} />
       </AbsoluteFill>
       {/* the plate is titled on a shelf of shadow, so the type stays readable on any image */}
       <AbsoluteFill style={{ pointerEvents: "none",
@@ -90,7 +91,7 @@ const Plate: React.FC<{ shot: Shot; start: number; dur: number; fade: number }> 
       <AbsoluteFill style={{ pointerEvents: "none",
         background: "linear-gradient(100deg, rgba(6,5,4,0.66) 0%, rgba(6,5,4,0.3) 34%, transparent 56%)" }} />
       <AbsoluteFill style={{ justifyContent: "flex-end", pointerEvents: "none" }}>
-        <div style={{ padding: "0 84px 76px" }}>{caption}</div>
+        <div style={{ padding: `0 ${84 * k}px ${76 * k}px` }}>{caption}</div>
       </AbsoluteFill>
     </AbsoluteFill>
   );
@@ -99,6 +100,7 @@ const Plate: React.FC<{ shot: Shot; start: number; dur: number; fade: number }> 
 const Card: React.FC<{ start: number; dur: number; fade: number; children: React.ReactNode }> =
 ({ start, dur, fade, children }) => {
   const frame = useCurrentFrame();
+  const k = useVideoConfig().width / 1920;
   const t = frame - start;
   if (t < -fade || t > dur) return null;
   const opacity = Math.min(
@@ -106,12 +108,13 @@ const Card: React.FC<{ start: number; dur: number; fade: number; children: React
     interpolate(t, [dur - fade, dur], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
   );
   return <AbsoluteFill style={{ opacity, background: theme.colors.bg, justifyContent: "center",
-    padding: "0 110px" }}>{children}</AbsoluteFill>;
+    padding: `0 ${110 * k}px` }}>{children}</AbsoluteFill>;
 };
 
 export const Montage: React.FC<MontageProps> = ({ title, subtitle, repo, shots, timing }) => {
   const frame = useCurrentFrame();
-  const { durationInFrames } = useVideoConfig();
+  const { durationInFrames, width } = useVideoConfig();
+  const k = width / 1920;
   const { intro, shot: SHOT, overlap: FADE, step, outro } = timing;
   const outroStart = intro + (shots.length - 1) * step + SHOT - FADE;
   const run = interpolate(frame, [0, durationInFrames], [0, 1],
@@ -119,13 +122,13 @@ export const Montage: React.FC<MontageProps> = ({ title, subtitle, repo, shots, 
   return (
     <AbsoluteFill style={{ background: theme.colors.bg, color: theme.colors.text }}>
       <Card start={0} dur={intro + FADE} fade={FADE}>
-        <div style={{ fontFamily: theme.fonts.mono, fontSize: 14, letterSpacing: "0.34em",
+        <div style={{ fontFamily: theme.fonts.mono, fontSize: 14 * k, letterSpacing: "0.34em",
           textTransform: "uppercase", color: theme.colors.primary }}>Aurelia · plates</div>
         <WordReveal text={title} delay={6} per={3}
-          style={{ fontFamily: theme.fonts.display, fontSize: 96, lineHeight: 1.02, fontWeight: 500, marginTop: 18 }} />
+          style={{ fontFamily: theme.fonts.display, fontSize: 96 * k, lineHeight: 1.02, fontWeight: 500, marginTop: 18 * k }} />
         <Entrance delay={26}>
-          <div style={{ fontFamily: theme.fonts.display, fontStyle: "italic", fontSize: 30,
-            color: theme.colors.accent, marginTop: 16 }}>{subtitle}</div>
+          <div style={{ fontFamily: theme.fonts.display, fontStyle: "italic", fontSize: 30 * k,
+            color: theme.colors.accent, marginTop: 16 * k }}>{subtitle}</div>
         </Entrance>
       </Card>
 
@@ -134,21 +137,21 @@ export const Montage: React.FC<MontageProps> = ({ title, subtitle, repo, shots, 
       ))}
 
       <Card start={outroStart} dur={outro} fade={FADE}>
-        <div style={{ fontFamily: theme.fonts.mono, fontSize: 14, letterSpacing: "0.34em",
+        <div style={{ fontFamily: theme.fonts.mono, fontSize: 14 * k, letterSpacing: "0.34em",
           textTransform: "uppercase", color: theme.colors.primary }}>Plates from</div>
-        <div style={{ fontFamily: theme.fonts.display, fontSize: 62, marginTop: 14 }}>awesome-gpt-image-2</div>
-        <div style={{ fontFamily: theme.fonts.mono, fontSize: 16, color: theme.colors.textDim, marginTop: 14 }}>{repo}</div>
-        <div style={{ fontFamily: theme.fonts.display, fontStyle: "italic", fontSize: 24,
-          color: theme.colors.accent, marginTop: 20 }}>
+        <div style={{ fontFamily: theme.fonts.display, fontSize: 62 * k, marginTop: 14 * k }}>awesome-gpt-image-2</div>
+        <div style={{ fontFamily: theme.fonts.mono, fontSize: 16 * k, color: theme.colors.textDim, marginTop: 14 * k }}>{repo}</div>
+        <div style={{ fontFamily: theme.fonts.display, fontStyle: "italic", fontSize: 24 * k,
+          color: theme.colors.accent, marginTop: 20 * k }}>
           Every image belongs to its author, named on its own plate.
         </div>
       </Card>
 
       {/* how far through the film you are, in one gold line */}
       <AbsoluteFill style={{ justifyContent: "flex-end", pointerEvents: "none" }}>
-        <div style={{ height: 2, background: "rgba(255,255,255,0.06)" }}>
+        <div style={{ height: Math.max(2, 2 * k), background: "rgba(255,255,255,0.06)" }}>
           <div style={{ height: "100%", width: `${run * 100}%`, background: theme.colors.primary,
-            boxShadow: `0 0 14px ${theme.colors.glow}` }} />
+            boxShadow: `0 0 ${14 * k}px ${theme.colors.glow}` }} />
         </div>
       </AbsoluteFill>
 

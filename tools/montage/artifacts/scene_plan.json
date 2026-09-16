@@ -2,8 +2,8 @@
   "project": "plates-from-the-gallery",
   "pipeline": "cinematic",
   "format": {
-    "width": 1920,
-    "height": 818,
+    "width": 3840,
+    "height": 1636,
     "fps": 30,
     "aspect": "2.35:1",
     "durationInFrames": 624
@@ -13,7 +13,16 @@
     "commit": "0dc09c46c8a30b1fdd89c18cc78a894dac2104e3",
     "picked": 6,
     "available": 541,
-    "note": "Images are third-party work collected by that gallery. Each plate carries its author on screen and in the credits."
+    "note": "Images are third-party work collected by that gallery. Each plate carries its author on screen and in the credits.",
+    "plateResolution": {
+      "case537": "2160x3840",
+      "case395": "3344x1882",
+      "case340": "1122x1402",
+      "case415": "853x1280",
+      "case396": "768x1376",
+      "case206": "1836x857",
+      "note": "At 3840 wide the two poster plates are shown at their own size or better, because a poster is fitted by height. The scene plates are cropped to the frame width, so 395 is close to native and 537, 206 and 340 are enlarged. 2560 wide is the largest frame in which no plate is enlarged."
+    }
   },
   "look": "The library's own grade: near-black ground, one gold, warm parchment. Soft-light gold pass, moving grain, vignette, a gold progress rule along the bottom. Scene plates fill the frame and are cropped to a chosen line; poster plates are shown whole, because they are meant to be read.",
   "timing": {
