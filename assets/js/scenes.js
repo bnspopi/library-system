@@ -709,6 +709,7 @@
         ])
       ]);
       var door = { def: d, node: node, name: name, poster: d.poster, video: view, duration: 8, loaded: false,
+                   key: 'door:' + d.key, src: BASE + d.poster + '-m.mp4',
                    drive: LS.FilmDrive ? LS.FilmDrive.of(view) : null };
       view.addEventListener('loadedmetadata', function () {
         var dur = view.duration; door.duration = (isFinite(dur) && dur > 0.5) ? dur : 8;
@@ -717,20 +718,30 @@
     });
     /* the doorways come alive as you look round and walk: every clip is
        moved by the drag and the scroll, none of them plays on its own */
+    function seen(d) {   // degrees between where you are looking and this doorway
+      return Math.abs(((norm(view.yaw) - d.def.yaw + 540) % 360) - 180);
+    }
+    /* Ten doorways stand round the reception, and you can only ever face a
+       few. The ones behind your head hold a decoder for a picture nobody is
+       looking at, so they give it back and keep their poster. The two angles
+       are far apart on purpose: a doorway at the edge of your view must not
+       be able to load and unload as you turn. */
     function loadDoors() {
       doors.forEach(function (d) {
-        if (d.loaded) return;
-        d.loaded = true;
-        d.video.preload = 'auto';
-        d.video.src = BASE + d.poster + '-m.mp4';
-        d.video.load();
+        var v = seen(d);
+        if (v <= 110) LS.ClipBudget.want(d, v <= 55 ? 3 : 2);
+        else if (v > 165) LS.ClipBudget.drop(d);
       });
     }
+    function unloadDoors() { doors.forEach(function (d) { LS.ClipBudget.drop(d); }); }
     function driveDoors() {
       var base = 0.06 + 0.7 * (view.p || 0) + (view.spin || 0);
       doors.forEach(function (d) {
+        var v = seen(d);
+        if (v <= 110) LS.ClipBudget.want(d, v <= 55 ? 3 : 2);
+        else if (v > 165) LS.ClipBudget.drop(d);
         if (!d.drive || !d.loaded) return;
-        var diff = Math.abs(((norm(view.yaw) - d.def.yaw + 540) % 360) - 180);
+        var diff = v;
         if (diff > 80) { d.drive.stop(); return; }       // only the doorways you can see move
         d.drive.to(Math.min(1, base) * (d.duration - 0.06));
       });
@@ -918,7 +929,7 @@
 
     return {
       node: node, stage: stage, beats: [], render: render, trigger: null, def: hall.def,
-      focus: focus, load: loadDoors, videos: doors.map(function (d) { return d.video; }),
+      focus: focus, load: loadDoors, unload: unloadDoors, videos: doors.map(function (d) { return d.video; }),
       onToggle: function (active) { if (active) { stage.focus({ preventScroll: true }); driveDoors(); } else doors.forEach(function (d) { if (d.drive) d.drive.stop(); }); }
     };
   }
