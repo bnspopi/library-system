@@ -1,0 +1,117 @@
+{
+  "project": "plates-from-the-gallery",
+  "pipeline": "cinematic",
+  "format": {
+    "width": 1920,
+    "height": 818,
+    "fps": 30,
+    "aspect": "2.35:1",
+    "durationInFrames": 624
+  },
+  "source": {
+    "repository": "https://github.com/freestylefly/awesome-gpt-image-2",
+    "commit": "0dc09c46c8a30b1fdd89c18cc78a894dac2104e3",
+    "picked": 6,
+    "available": 541,
+    "note": "Images are third-party work collected by that gallery. Each plate carries its author on screen and in the credits."
+  },
+  "look": "The library's own grade: near-black ground, one gold, warm parchment. Soft-light gold pass, moving grain, vignette, a gold progress rule along the bottom. Scene plates fill the frame and are cropped to a chosen line; poster plates are shown whole, because they are meant to be read.",
+  "timing": {
+    "intro": 72,
+    "shot": 96,
+    "overlap": 16,
+    "step": 80,
+    "outro": 72
+  },
+  "shots": [
+    {
+      "n": 1,
+      "case": 537,
+      "file": "case537.jpg",
+      "title": "The Underground Archive",
+      "line": "A reader kneels, and what the book holds comes up out of it.",
+      "source": "@PromptSin",
+      "move": "in",
+      "zoomFrom": 1.04,
+      "zoomTo": 1.17,
+      "panX": -26,
+      "fit": "fill",
+      "focusY": 0.8
+    },
+    {
+      "n": 2,
+      "case": 395,
+      "file": "case395.jpg",
+      "title": "The Knight and the Golem",
+      "line": "A gilt hall, a stone thing waking, and nowhere to stand but here.",
+      "source": "@RamonVi25791296",
+      "move": "out",
+      "zoomFrom": 1.16,
+      "zoomTo": 1.02,
+      "panX": 30,
+      "fit": "fill",
+      "focusY": 0.52
+    },
+    {
+      "n": 3,
+      "case": 340,
+      "file": "case340.png",
+      "title": "Red Lilies, a Letter Unsent",
+      "line": "Rain on the terrace, and a poem written down the side of the sky.",
+      "source": "@xiaofenggan",
+      "move": "in",
+      "zoomFrom": 1.03,
+      "zoomTo": 1.18,
+      "panX": 22,
+      "fit": "fill",
+      "focusY": 0.3
+    },
+    {
+      "n": 4,
+      "case": 415,
+      "file": "case415.jpg",
+      "title": "Plate: The Monkey King",
+      "line": "One figure, annotated to the last hair, in the manner of an old encyclopedia.",
+      "source": "@TanLuAI",
+      "move": "out",
+      "zoomFrom": 1.2,
+      "zoomTo": 1.04,
+      "panX": -18,
+      "fit": "plate",
+      "focusY": 0.5
+    },
+    {
+      "n": 5,
+      "case": 206,
+      "file": "case206.jpg",
+      "title": "The Twelve of Jinling",
+      "line": "A scroll that will not fit the frame, so the frame moves along it.",
+      "source": "@GeekCatX",
+      "move": "pan",
+      "zoomFrom": 1.26,
+      "zoomTo": 1.26,
+      "panX": -150,
+      "fit": "fill",
+      "focusY": 0.5
+    },
+    {
+      "n": 6,
+      "case": 396,
+      "file": "case396.jpg",
+      "title": "Encyclopedia Creaturae",
+      "line": "Volume IV, plate VII: the Imperial Dread-Drake, with hunter's notes.",
+      "source": "@sha_zdiii",
+      "move": "in",
+      "zoomFrom": 1.05,
+      "zoomTo": 1.19,
+      "panX": 20,
+      "fit": "plate",
+      "focusY": 0.5
+    }
+  ],
+  "gates": {
+    "idea": "auto-approved: the request named the source and the intent",
+    "assets": "no generation: every frame is an existing plate from the gallery",
+    "render": "sampled with ffmpeg and read back before delivery"
+  }
+}

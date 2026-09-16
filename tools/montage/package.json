@@ -1,0 +1,15 @@
+{
+  "name": "aurelia-montage",
+  "private": true,
+  "description": "Cuts a set of still plates into a short film: each one is held, moved and titled, with the whole thing graded to match the library. Built with Remotion.",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render": "node render.mjs"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "remotion": "^4.0.0"
+  }
+}
