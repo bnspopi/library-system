@@ -23,7 +23,7 @@
   var U = LS.util, E = LS.Engine;
   var el = U.el;
 
-  var BASE = 'public/scenes/';
+  var BASE = 'scenes/';
   var VH_PER_BEAT = 100;          // scroll distance each clip gets, in viewport heights
   var VH_RECEPTION = 260;         // the reception: look around, then walk through a door
   var XFADE = 0.10;               // fraction of a beat spent crossfading to the next

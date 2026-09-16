@@ -28,7 +28,7 @@
   var el = U.el;
   var T = global.THREE;
 
-  var BASE = 'public/scenes/';
+  var BASE = 'scenes/';
   var MOBILE = !!(global.matchMedia && global.matchMedia('(max-width: 720px)').matches);
   function clipSrc(slug) { return BASE + slug + (MOBILE ? '-m' : '') + '.mp4'; }
 

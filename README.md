@@ -70,7 +70,7 @@ tour is a tab in the OPAC (**Public → Collections**), pinned inside the app's 
 
 ### The footage
 
-Sixty-one clips live in `public/scenes/`, catalogued by hall in `REGISTRY` in `assets/js/scenes.js`
+Sixty-one clips live in `scenes/`, catalogued by hall in `REGISTRY` in `assets/js/scenes.js`
 as beats `{ src, label, lines }`. What is clickable inside each clip is in `assets/js/hotspots.js`:
 rectangles of the frame with a label and an action (`turn`, `reserve`, `look`, `book`, `hall`).
 Adding a clip is one line in the registry and, optionally, a line of hotspots.
@@ -82,14 +82,14 @@ in the bottom band of the frame and are cropped away, not painted over:
 ```bash
 # 1920x1080 sources: crop the bottom 220 px
 ffmpeg -i in.mp4 -an -vf "crop=1920:860:0:0,scale=1280:-2" \
-  -c:v libx264 -preset slow -crf 29 -g 1 -pix_fmt yuv420p -movflags +faststart public/scenes/<slug>.mp4
+  -c:v libx264 -preset slow -crf 29 -g 1 -pix_fmt yuv420p -movflags +faststart scenes/<slug>.mp4
 # 1280x720 sources: crop the bottom 64 px
 ffmpeg -i in.mp4 -an -vf "crop=1280:656:0:0" \
-  -c:v libx264 -preset slow -crf 29 -g 1 -pix_fmt yuv420p -movflags +faststart public/scenes/<slug>.mp4
+  -c:v libx264 -preset slow -crf 29 -g 1 -pix_fmt yuv420p -movflags +faststart scenes/<slug>.mp4
 # the poster, and the phone copy
-ffmpeg -i public/scenes/<slug>.mp4 -frames:v 1 -q:v 4 public/scenes/<slug>.jpg
-ffmpeg -i public/scenes/<slug>.mp4 -an -vf "scale=720:-2" -c:v libx264 -preset slow -crf 30 -g 1 \
-  -pix_fmt yuv420p -movflags +faststart public/scenes/<slug>-m.mp4
+ffmpeg -i scenes/<slug>.mp4 -frames:v 1 -q:v 4 scenes/<slug>.jpg
+ffmpeg -i scenes/<slug>.mp4 -an -vf "scale=720:-2" -c:v libx264 -preset slow -crf 30 -g 1 \
+  -pix_fmt yuv420p -movflags +faststart scenes/<slug>-m.mp4
 ```
 
 Seeking needs a server that answers HTTP Range requests. Vercel does; `npx serve` does;
@@ -216,7 +216,7 @@ assets/
     hall3d.js         a hall as a room built from its footage
     orrery.js         the landing page
   vendor/             gsap, ScrollTrigger, three.js, scrollcraft
-public/scenes/        the clips (all-intra H.264, 1280 px wide, plus -m phone copies) and posters
+scenes/        the clips (all-intra H.264, 1280 px wide, plus -m phone copies) and posters
     data.js           the seed dataset — bibs, items, patrons, funds, serials, policies
     engine.js         the business rules: circulation, holds, fines, acquisitions, the nightly job
     ui.js             toasts, modals, drawers, tabs, charts, receipts
